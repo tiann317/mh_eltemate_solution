@@ -1,0 +1,121 @@
+# -----------------------------------------------------------------------------
+# SPDX-FileCopyrightText: 2026 Rosabella Robertson, Selin Agrali,
+#                              Ivan Titov, Nancy Hun
+# SPDX-License-Identifier: LicenseRef-Proprietary
+#
+# Aegis Notice — Munich Legal Hackathon 2026
+# Copyright (c) 2026 Robertson, Agrali, Titov, Hun. All rights reserved.
+#
+# This file is part of Aegis Notice, a proprietary work protected under
+# §§ 2, 8, 64 Urheberrechtsgesetz (UrhG). Unauthorised use, reproduction,
+# or distribution is strictly prohibited. See COPYRIGHT for full terms.
+# -----------------------------------------------------------------------------
+Copyright (c) 2026 Rosabella Robertson, Selin Agrali, Ivan Titov, Nancy Hun
+All rights reserved.
+
+AEGIS NOTICE
+Developed at the Munich Legal Hackathon 2026 (25-26 April 2026, Munich, Germany)
+
+================================================================================
+URHEBERRECHTSHINWEIS / COPYRIGHT & PROPRIETARY NOTICE
+Pursuant to §§ 2, 8, 64 Urheberrechtsgesetz (UrhG) — German Copyright Act
+================================================================================
+
+OWNERSHIP
+---------
+Aegis Notice, including its name, concept, interface design, source code,
+documentation, and all associated materials (collectively, the "Work"), is an
+original intellectual creation protected under § 2 UrhG.
+
+The Work is the joint property of its four creators as co-authors (Miturheber)
+within the meaning of § 8 UrhG:
+
+  - Rosabella Robertson
+  - Selin Agrali
+  - Ivan Titov
+  - Nancy Hun
+
+Copyright protection arises automatically upon creation without the need for
+registration and extends for 70 years post mortem auctoris pursuant to § 64 UrhG.
+
+PROPRIETARY NOTICE
+------------------
+This Work contains proprietary and confidential information. It was created at
+the Munich Legal Hackathon 2026 and is disclosed solely for evaluation and
+demonstration purposes within that context. Unauthorised use, reproduction, or
+disclosure outside of this context is strictly prohibited and may give rise to
+civil and criminal liability under German and international law.
+
+RIGHTS RESERVED
+---------------
+The following rights are expressly reserved pursuant to the UrhG:
+
+  - Reproduction (§ 16 UrhG)
+  - Distribution (§ 17 UrhG)
+  - Public communication (§ 15 UrhG)
+  - Making available online (§ 19a UrhG)
+  - Adaptation and modification (§ 23 UrhG)
+  - Translation and creation of derivative works
+  - Commercial exploitation of any kind
+
+PROHIBITED USES
+---------------
+The following uses are strictly prohibited without the express prior written
+consent of all four co-authors:
+
+  - Copying or reproducing any part of the Work
+  - Reverse engineering or decompiling
+  - Sub-licensing, selling, or reselling
+  - Passing off the Work or any derivative as one's own
+  - Use in competing products or services
+  - Use to train, fine-tune, or evaluate AI/ML models (Directive 2019/790/EU)
+  - Any other use not expressly permitted below
+
+MORAL RIGHTS
+------------
+The creators retain all moral rights (Urheberpersoenlichkeitsrechte) pursuant to
+§§ 12-14 UrhG, including:
+
+  - The right of publication (Veroeffentlichungsrecht, § 12 UrhG)
+  - The right of authorship attribution (Recht auf Anerkennung der Urheberschaft,
+    § 13 UrhG)
+  - The right to protect the integrity of the Work against distortion or
+    mutilation (§ 14 UrhG)
+
+These rights are inalienable and may not be transferred or waived.
+
+PERMITTED USE
+-------------
+Limited, non-exclusive, non-transferable permission is granted to Munich Legal
+Hackathon 2026 organisers, judges, and participants to view and evaluate this
+Work solely for the purposes of that event. No further rights are granted.
+
+Any other use requires the express prior written consent of all four co-authors.
+
+ENFORCEMENT
+-----------
+Infringement of these rights may result in:
+
+  - Civil claims for injunctive relief, damages, and unjust enrichment pursuant
+    to §§ 97-101a UrhG
+  - Criminal prosecution under § 106 UrhG
+
+Jurisdiction: Munich, Germany
+Applicable law: Urheberrechtsgesetz (UrhG), Buergerliches Gesetzbuch (BGB),
+and applicable EU directives including Directive 2019/790/EU on copyright in
+the Digital Single Market.
+
+================================================================================
+(c) 2026 Robertson . Agrali . Titov . Hun — Alle Rechte vorbehalten
+Gemaess §§ 2, 8, 64 UrhG . Richtlinie 2019/790/EU
+================================================================================
+AEGIS NOTICE
+Munich Legal Hackathon 2026
+Copyright (c) 2026 Rosabella Robertson, Selin Agrali, Ivan Titov, Nancy Hun
+All rights reserved.
+
+This product and all associated materials are proprietary and confidential.
+Unauthorised use, reproduction, or distribution is strictly prohibited.
+
+See the COPYRIGHT file for full terms.
+
