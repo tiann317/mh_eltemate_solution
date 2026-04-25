@@ -3,8 +3,6 @@ steps:
     args:
       - 'build'
       - '--build-arg'
-      - 'VITE_OPENAI_API_KEY=${_VITE_OPENAI_API_KEY}'
-      - '--build-arg'
       - 'VITE_LDA_CLIENT_ID=${_VITE_LDA_CLIENT_ID}'
       - '--build-arg'
       - 'VITE_LDA_CLIENT_SECRET=${_VITE_LDA_CLIENT_SECRET}'
@@ -34,7 +32,6 @@ steps:
       - '8080'
 
 substitutions:
-  _VITE_OPENAI_API_KEY: ''
   _VITE_LDA_CLIENT_ID: ''
   _VITE_LDA_CLIENT_SECRET: ''
   _VITE_SUPABASE_URL: 'https://placeholder.supabase.co'

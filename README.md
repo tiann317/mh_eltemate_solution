@@ -11,7 +11,7 @@ git clone <repo>
 cd aegis-notice
 npm install
 cp .env.example .env
-# Fill in VITE_OPENAI_API_KEY, VITE_LDA_CLIENT_ID, VITE_LDA_CLIENT_SECRET
+# Fill in VITE_LDA_CLIENT_ID, VITE_LDA_CLIENT_SECRET
 npm run dev
 ```
 
@@ -19,7 +19,6 @@ npm run dev
 
 | Key | Source |
 |---|---|
-| `VITE_OPENAI_API_KEY` | https://platform.openai.com |
 | `VITE_LDA_CLIENT_ID` | LDA Legal Data Analytics GmbH — legal-data-analytics.com |
 | `VITE_LDA_CLIENT_SECRET` | LDA Legal Data Analytics GmbH — legal-data-analytics.com |
 
@@ -36,5 +35,5 @@ The container is built from the included `Dockerfile`, pushed to GCR, and deploy
 
 - All state is session-only — no backend database.
 - LDA legal guidance is sourced from curated EU legal commentary via the Legal Data Hub QnA API.
-- AI risk assessment uses OpenAI `gpt-4o`.
+- AI risk assessment uses the LDA Legal Data Hub `chat` endpoint — every assessment is grounded in the same curated EU legal sources.
 - Aegis Notice provides structured guidance only — it does not constitute legal advice.
