@@ -1,92 +1,87 @@
-import json
-import re
+"""Local, deterministic breach-assessment stub.
 
-import httpx
-from fastapi import HTTPException
-
-from ..config import get_settings
-
-SYSTEM_PROMPT = """You are a GDPR and EU data protection law expert assistant helping legal and compliance teams respond to personal data breaches. You have deep knowledge of GDPR, NIS2 Directive (2022/2555), DORA (2022/2554), the CER Directive (2022/2557), and EDPB personal data breach notification guidelines (WP250 rev.01).
-
-Your role is to:
-1. Provide a structured risk assessment for the breach described
-2. Draft an initial Art.33 GDPR supervisory authority notification letter
-3. Draft a short internal escalation alert for senior leadership (CISO / CEO)
-4. For EVERY recommended technical action, attach the specific statutory legal basis that justifies and/or compels that action.
-5. Build a structured lawyer handoff packet for outside counsel.
-6. Provide a SECURITY PLAYBOOK: concrete defensive / containment measures the form submitter must take, each anchored to a legal basis.
-
-Rules:
-- Always cite specific legal provisions: Art.33, Art.34, Art.9, Art.4(12), Art.32, Art.5(1)(f), Art.30, Recital 85, NIS2 Art.23, DORA Art.19, CER Art.15
-- Apply EDPB Guidelines on personal data breach notification (WP250 rev.01)
-- Never advise that Art.33 notification is not required where Art.9 special category data is confirmed
-- Return ONLY valid JSON in the exact schema below. No text outside the JSON object.
-
-Return this exact JSON schema — no text outside the JSON:
-{
-  "risk_assessment": "3-4 sentences analysing risk to individuals, citing provisions",
-  "risk_rating": "low | medium | high | critical",
-  "key_gaps": ["gap 1", "gap 2"],
-  "notification_draft": "Full Art.33 notification letter text, formal",
-  "internal_alert": "5-6 line internal escalation alert for CISO/CEO, plain language",
-  "lawyer_handoff": "6-8 line plain-text structured handoff summary for outside counsel",
-  "recommended_actions": [
-    { "action": "immediate technical action 1", "legal_basis": "GDPR Art.32(1)(b)", "rationale": "one-line why" }
-  ],
-  "security_playbook": [
-    { "measure": "concrete security control to implement now", "legal_basis": "GDPR Art.32(1)(b)", "priority": "P0 | P1 | P2", "rationale": "why this is legally required" }
-  ],
-  "lawyer_packet": {
-    "incident_summary": "1-2 line factual summary",
-    "frameworks_triggered": ["GDPR", "NIS2"],
-    "active_deadlines": [{ "framework": "GDPR Art.33", "deadline": "72h from discovery", "status": "running" }],
-    "decisions_needed": ["confirm Art.34 individual notification trigger"],
-    "privilege_note": "one line on legal privilege posture",
-    "open_questions": ["question 1"]
-  }
-}"""
+No external API calls. Returns the same JSON schema the frontend expects so
+the app runs fully offline. Replace `assess_breach` with a real model call
+if/when you want one.
+"""
 
 
-async def assess_breach(user_message: str) -> dict:
-    settings = get_settings()
-    if not settings.lovable_api_key:
-        raise HTTPException(500, "LOVABLE_API_KEY not configured.")
+def assess_breach(user_message: str) -> dict:
+    text = (user_message or "").lower()
 
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        try:
-            r = await client.post(
-                settings.lovable_ai_url,
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {settings.lovable_api_key}",
-                },
-                json={
-                    "model": settings.lovable_ai_model,
-                    "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": user_message},
-                    ],
-                },
-            )
-        except httpx.HTTPError as e:
-            raise HTTPException(502, f"AI request failed: {e}") from e
+    if any(k in text for k in ("health", "medical", "biometric", "ssn", "passport")):
+        rating = "critical"
+    elif any(k in text for k in ("password", "credential", "financial", "card")):
+        rating = "high"
+    elif any(k in text for k in ("email", "name", "address", "phone")):
+        rating = "medium"
+    else:
+        rating = "low"
 
-    if r.status_code == 429:
-        raise HTTPException(429, "Rate limit exceeded. Please try again shortly.")
-    if r.status_code == 402:
-        raise HTTPException(402, "AI credits exhausted. Add credits in Lovable settings.")
-    if not r.is_success:
-        raise HTTPException(502, f"AI request failed ({r.status_code})")
-
-    data = r.json()
-    content: str = (data.get("choices") or [{}])[0].get("message", {}).get("content", "")
-    try:
-        return json.loads(content)
-    except json.JSONDecodeError:
-        m = re.search(r"\{[\s\S]*\}", content)
-        if m:
-            try:
-                return json.loads(m.group(0))
-            except json.JSONDecodeError:
-                pass
-    raise HTTPException(502, "AI returned non-JSON content.")
+    return {
+        "risk_assessment": (
+            "Local assessment based on submitted description. Considered scope of "
+            "personal data, likelihood of harm, and Art.32/Art.33 GDPR obligations. "
+            "Replace this stub with a real model call to refine."
+        ),
+        "risk_rating": rating,
+        "key_gaps": [
+            "Confirm categories of data subjects affected",
+            "Confirm whether Art.9 special category data is involved",
+        ],
+        "notification_draft": (
+            "To the competent supervisory authority,\n\n"
+            "Pursuant to Art.33 GDPR we hereby notify a personal data breach. "
+            "Details of the incident as currently known are described below. "
+            "We will provide further information without undue delay as the "
+            "investigation progresses.\n\n"
+            f"Incident description: {user_message}\n"
+        ),
+        "internal_alert": (
+            "Personal data breach detected. Containment underway. "
+            "Art.33 72h clock has started. Legal + Security on point. "
+            "Awaiting confirmation of affected data categories and subject count."
+        ),
+        "lawyer_handoff": (
+            "Incident summary attached. Frameworks in scope: GDPR (Art.33/34). "
+            "Open items: confirm Art.9 data, finalise subject count, decide "
+            "Art.34 individual notification trigger. Privilege: treat all "
+            "internal comms as legally privileged work product."
+        ),
+        "recommended_actions": [
+            {
+                "action": "Isolate affected systems and preserve forensic evidence",
+                "legal_basis": "GDPR Art.32(1)(b)",
+                "rationale": "Restore confidentiality and integrity of processing",
+            },
+            {
+                "action": "Rotate credentials and revoke active sessions",
+                "legal_basis": "GDPR Art.32(1)(b)",
+                "rationale": "Prevent ongoing unauthorised access",
+            },
+        ],
+        "security_playbook": [
+            {
+                "measure": "Enable MFA on all administrative accounts",
+                "legal_basis": "GDPR Art.32(1)(b)",
+                "priority": "P0",
+                "rationale": "Mitigates credential-based intrusion vectors",
+            },
+            {
+                "measure": "Review and tighten access logs / alerting",
+                "legal_basis": "GDPR Art.30, Art.32",
+                "priority": "P1",
+                "rationale": "Required for accountability and detection",
+            },
+        ],
+        "lawyer_packet": {
+            "incident_summary": user_message[:200],
+            "frameworks_triggered": ["GDPR"],
+            "active_deadlines": [
+                {"framework": "GDPR Art.33", "deadline": "72h from discovery", "status": "running"}
+            ],
+            "decisions_needed": ["Confirm Art.34 individual notification trigger"],
+            "privilege_note": "Treat internal incident comms as privileged work product.",
+            "open_questions": ["How many data subjects are affected?"],
+        },
+    }

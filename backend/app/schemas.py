@@ -15,17 +15,6 @@ class AssessResponse(BaseModel):
     assessment: dict[str, Any]
 
 
-# ---------- LDA ----------
-class LdaRequest(BaseModel):
-    prompt: str = Field(..., min_length=1)
-
-
-class LdaResponse(BaseModel):
-    answer: str = ""
-    sources: list[Any] = []
-    skipped: str | None = None
-
-
 # ---------- Incidents ----------
 class IncidentBase(BaseModel):
     title: str
