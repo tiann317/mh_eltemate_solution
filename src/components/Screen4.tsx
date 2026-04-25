@@ -479,7 +479,7 @@ export const Screen4 = ({
             <div className="aegis-card" style={{ borderLeft: "3px solid #ff6b6b" }}>
               <div style={{ color: "#ff6b6b", fontWeight: 600, marginBottom: 6 }}>Legal track could not be generated</div>
               <div style={{ color: "#a8bbd4", fontSize: 13 }}>
-                The <code>OPENAI_API_KEY</code> backend secret may be missing, invalid, or rate-limited. Verify it in Lovable Cloud → Backend → Secrets and try again.
+                The LDA Legal Data Hub assessment could not be generated. The credentials may be invalid, the LDA chat endpoint may have timed out, or the response may not have parsed as JSON. Please retry.
               </div>
             </div>
           ) : (
