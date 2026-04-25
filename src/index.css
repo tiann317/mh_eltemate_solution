@@ -1,269 +1,135 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  :root {
-    /* Aegis Notice — light theme for maximum visibility of urgent actions */
-    --background: 0 0% 100%;            /* #ffffff */
-    --foreground: 222 47% 11%;          /* #0f172a */
-
-    --card: 0 0% 100%;                  /* #ffffff */
-    --card-foreground: 222 47% 11%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-
-    --primary: 218 79% 48%;             /* #1a56db */
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 213 73% 47%;       /* #1e6fcf */
-
-    --secondary: 210 40% 96%;           /* #f1f5f9 */
-    --secondary-foreground: 222 47% 11%;
-
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 20% 35%;    /* slate-600 */
-
-    --accent: 218 79% 48%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 72% 51%;           /* #dc2626 */
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 215 20% 80%;              /* slate border */
-    --input: 215 20% 80%;
-    --ring: 218 79% 48%;
-
-    --radius: 4px;
-
-    /* Aegis semantic */
-    --danger: 0 72% 51%;
-    --danger-bg: 0 100% 96%;
-    --warning: 28 80% 45%;
-    --warning-bg: 39 100% 95%;
-    --info: 213 90% 50%;
-    --info-bg: 213 100% 96%;
-    --success: 142 71% 36%;
-    --success-bg: 138 76% 95%;
-
-    --hairline: 15, 23, 42;
-  }
+:root {
+  --bg: #0f172a;
+  --panel: #1e293b;
+  --border: #334155;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --danger: #ef4444;
 }
 
-@layer base {
-  * {
-    border-color: hsl(var(--border));
-  }
-  html, body, #root {
-    background-color: #ffffff;
-    color: hsl(var(--foreground));
-    min-height: 100vh;
-  }
-  body {
-    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-  input, select, textarea {
-    color-scheme: light;
-  }
+* {
+  box-sizing: border-box;
 }
 
-@layer components {
-  .aegis-card {
-    background: #ffffff;
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
-    padding: 1.25rem;
-    color: hsl(var(--foreground));
-  }
-
-  .aegis-section-label {
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: hsl(var(--muted-foreground));
-    font-weight: 500;
-  }
-
-  .aegis-title {
-    font-size: 22px;
-    font-weight: 400;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: hsl(var(--foreground));
-  }
-
-  .aegis-helper {
-    color: hsl(var(--muted-foreground));
-    font-size: 13px;
-    line-height: 1.7;
-  }
-
-  .aegis-label {
-    display: block;
-    color: hsl(var(--foreground));
-    font-size: 13px;
-    margin-bottom: 6px;
-    font-weight: 500;
-  }
-
-  .aegis-field-helper {
-    color: hsl(var(--muted-foreground));
-    font-size: 12px;
-    line-height: 1.6;
-    margin-top: 6px;
-  }
-
-  .aegis-input,
-  .aegis-select {
-    width: 100%;
-    background: #ffffff;
-    border: 1px solid hsl(var(--border));
-    color: hsl(var(--foreground));
-    border-radius: var(--radius);
-    padding: 10px 12px;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .aegis-input:focus,
-  .aegis-select:focus {
-    border-color: hsl(var(--primary));
-  }
-
-  .aegis-btn-primary {
-    background: hsl(var(--primary));
-    color: #ffffff;
-    border-radius: var(--radius);
-    padding: 12px 20px;
-    font-size: 14px;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-    transition: background 0.15s;
-    width: 100%;
-    letter-spacing: 0.02em;
-  }
-  .aegis-btn-primary:hover { background: hsl(var(--primary-hover)); }
-  .aegis-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  .aegis-btn-secondary {
-    background: #ffffff;
-    color: hsl(var(--foreground));
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
-    padding: 12px 20px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .aegis-btn-secondary:hover { background: #f1f5f9; }
-
-  .aegis-pill {
-    background: #ffffff;
-    border: 1px solid hsl(var(--border));
-    color: hsl(var(--foreground));
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.15s;
-    user-select: none;
-  }
-  .aegis-pill.selected {
-    background: hsl(var(--primary) / 0.1);
-    border-color: hsl(var(--primary));
-    color: hsl(var(--primary));
-  }
-  .aegis-pill.danger.selected {
-    background: hsl(var(--danger) / 0.1);
-    border-color: hsl(var(--danger));
-    color: hsl(var(--danger));
-  }
-
-  .aegis-alert {
-    border-radius: var(--radius);
-    padding: 12px 14px;
-    margin: 12px 0;
-    border-left: 3px solid;
-    font-size: 13px;
-  }
-  .aegis-alert-title { font-weight: 600; margin-bottom: 4px; font-size: 13px; }
-  .aegis-alert-body { color: hsl(var(--foreground)); line-height: 1.6; }
-  .aegis-alert-cite { color: hsl(var(--muted-foreground)); font-size: 11px; font-style: italic; margin-top: 6px; }
-  .aegis-alert.danger { background: hsl(var(--danger-bg)); border-color: hsl(var(--danger)); }
-  .aegis-alert.danger .aegis-alert-title { color: hsl(var(--danger)); }
-  .aegis-alert.warning { background: hsl(var(--warning-bg)); border-color: hsl(var(--warning)); }
-  .aegis-alert.warning .aegis-alert-title { color: hsl(var(--warning)); }
-  .aegis-alert.info { background: hsl(var(--info-bg)); border-color: hsl(var(--info)); }
-  .aegis-alert.info .aegis-alert-title { color: hsl(var(--info)); }
-  .aegis-alert.success { background: hsl(var(--success-bg)); border-color: hsl(var(--success)); }
-  .aegis-alert.success .aegis-alert-title { color: hsl(var(--success)); }
-
-  .aegis-draft {
-    background: #f8fafc;
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 12px;
-    color: #0f172a;
-    padding: 16px;
-    white-space: pre-wrap;
-    line-height: 1.6;
-  }
-
-  .aegis-sourced-badge {
-    background: hsl(var(--success-bg));
-    border: 1px solid hsl(var(--success));
-    color: hsl(var(--success));
-    font-size: 10px;
-    padding: 2px 7px;
-    border-radius: 10px;
-    letter-spacing: 0.05em;
-  }
-
-  .aegis-clock-card {
-    background: #ffffff;
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
-    padding: 16px;
-    text-align: center;
-  }
-  .aegis-clock-label { font-size: 10px; color: hsl(var(--muted-foreground)); text-transform: uppercase; letter-spacing: 0.12em; }
-  .aegis-clock-digit { font-size: 28px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; margin: 6px 0 4px; }
-  .aegis-clock-sub { font-size: 10px; color: hsl(var(--muted-foreground)); }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
 }
 
-/* ----------- Light-theme override layer -----------
-   Overrides legacy dark inline hex backgrounds (used as inline style="...")
-   so the entire app reads as a white surface without rewriting every component. */
-[style*="background: #0a1525"],
-[style*="background:#0a1525"],
-[style*="background-color: #0a1525"],
-[style*="background: #0d1b2e"],
-[style*="background:#0d1b2e"],
-[style*="background-color: #0d1b2e"],
-[style*="background: #112240"],
-[style*="background:#112240"],
-[style*="background: #13243d"],
-[style*="background:#13243d"] {
-  background: #ffffff !important;
-  color: #0f172a !important;
+a {
+  color: var(--accent);
+  text-decoration: none;
 }
-[style*="background: #000"],
-[style*="background:#000"] {
-  background: #f8fafc !important;
-  color: #0f172a !important;
+
+a:hover {
+  text-decoration: underline;
 }
-/* Re-target legacy off-white text on dark surfaces to slate */
-[style*="color: #a8bbd4"],
-[style*="color:#a8bbd4"] { color: #475569 !important; }
-[style*="color: #e2e8f0"],
-[style*="color:#e2e8f0"] { color: #0f172a !important; }
-[style*="color: #fff"],
-[style*="color:#fff"],
-[style*="color: #ffffff"],
-[style*="color:#ffffff"] { color: #0f172a !important; }
-[style*="color: #9bb6d6"],
-[style*="color:#9bb6d6"] { color: #475569 !important; }
-/* But preserve white on intentionally colored badges (red/blue/green backgrounds) — those use inline background colors so the override doesn't apply */
+
+.app-header {
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.app-header nav a {
+  margin-left: 16px;
+  color: var(--muted);
+}
+
+.app-header nav a.active {
+  color: var(--text);
+}
+
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--accent-hover);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.btn-danger {
+  background: var(--danger);
+}
+
+textarea,
+input {
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+textarea {
+  min-height: 160px;
+  resize: vertical;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.spacer {
+  flex: 1;
+}

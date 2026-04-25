@@ -1,0 +1,29 @@
+.incident-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.incident-row:last-child {
+  border-bottom: none;
+}
+
+.incident-title {
+  font-weight: 500;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--border);
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.badge.critical { background: #7f1d1d; }
+.badge.high { background: #9a3412; }
+.badge.medium { background: #854d0e; }
+.badge.low { background: #166534; }

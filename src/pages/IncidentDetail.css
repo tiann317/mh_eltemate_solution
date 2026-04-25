@@ -1,0 +1,11 @@
+.log-entry {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.log-entry:last-child {
+  border-bottom: none;
+}

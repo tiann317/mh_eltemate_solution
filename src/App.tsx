@@ -1,31 +1,29 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
-import Dashboard from "./pages/Dashboard.tsx";
-import IncidentDetail from "./pages/IncidentDetail.tsx";
-import NotFound from "./pages/NotFound.tsx";
-
-const queryClient = new QueryClient();
+import { BrowserRouter, Link, NavLink, Route, Routes } from "react-router-dom";
+import NewIncident from "./pages/NewIncident";
+import Dashboard from "./pages/Dashboard";
+import IncidentDetail from "./pages/IncidentDetail";
+import NotFound from "./pages/NotFound";
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-        <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/incident/:id" element={<IncidentDetail />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <BrowserRouter>
+    <header className="app-header">
+      <Link to="/" style={{ color: "inherit" }}>
+        <h1>Aegis Notice</h1>
+      </Link>
+      <nav>
+        <NavLink to="/" end>New incident</NavLink>
+        <NavLink to="/dashboard">Dashboard</NavLink>
+      </nav>
+    </header>
+    <main>
+      <Routes>
+        <Route path="/" element={<NewIncident />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/incident/:id" element={<IncidentDetail />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </main>
+  </BrowserRouter>
 );
 
 export default App;

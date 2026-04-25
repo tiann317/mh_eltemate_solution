@@ -12,7 +12,9 @@ class AssessRequest(BaseModel):
 
 
 class AssessResponse(BaseModel):
-    assessment: dict[str, Any]
+    answer: str
+    sources: list[dict[str, Any]] = []
+    response_id: str | None = None
 
 
 # ---------- Incidents ----------
