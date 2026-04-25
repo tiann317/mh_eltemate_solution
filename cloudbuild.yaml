@@ -1,6 +1,20 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/aegis-notice', '.']
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'VITE_OPENAI_API_KEY=${_VITE_OPENAI_API_KEY}'
+      - '--build-arg'
+      - 'VITE_LDA_CLIENT_ID=${_VITE_LDA_CLIENT_ID}'
+      - '--build-arg'
+      - 'VITE_LDA_CLIENT_SECRET=${_VITE_LDA_CLIENT_SECRET}'
+      - '--build-arg'
+      - 'VITE_SUPABASE_URL=${_VITE_SUPABASE_URL}'
+      - '--build-arg'
+      - 'VITE_SUPABASE_PUBLISHABLE_KEY=${_VITE_SUPABASE_PUBLISHABLE_KEY}'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/aegis-notice'
+      - '.'
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/aegis-notice']
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -18,3 +32,13 @@ steps:
       - '--allow-unauthenticated'
       - '--port'
       - '8080'
+
+substitutions:
+  _VITE_OPENAI_API_KEY: ''
+  _VITE_LDA_CLIENT_ID: ''
+  _VITE_LDA_CLIENT_SECRET: ''
+  _VITE_SUPABASE_URL: 'https://placeholder.supabase.co'
+  _VITE_SUPABASE_PUBLISHABLE_KEY: 'placeholder-anon-key'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
