@@ -1,87 +1,72 @@
-"""Local, deterministic breach-assessment stub.
+"""Legal reasoning via LDA (Legal Data Hub) QnA endpoint.
 
-No external API calls. Returns the same JSON schema the frontend expects so
-the app runs fully offline. Replace `assess_breach` with a real model call
-if/when you want one.
+Credentials are read from the environment:
+  LDA_CLIENT_ID, LDA_CLIENT_SECRET
+
+Docs: https://docs.legal-data-analytics.com/api-specification/qna
 """
+
+from __future__ import annotations
+
+import os
+
+import httpx
+
+TOKEN_URL = "https://online.otto-schmidt.de/token"
+QNA_URL = "https://otto-schmidt.legal-data-hub.com/api/qna"
+DATA_ASSET = "Beratermodul Datenschutzrecht"
+
+
+def _get_token() -> str:
+    client_id = os.getenv("LDA_CLIENT_ID", "")
+    client_secret = os.getenv("LDA_CLIENT_SECRET", "")
+    if not client_id or not client_secret:
+        raise RuntimeError("LDA_CLIENT_ID / LDA_CLIENT_SECRET not configured")
+
+    r = httpx.post(
+        TOKEN_URL,
+        data={
+            "grant_type": "authorization_code",
+            "client_id": client_id,
+            "client_secret": client_secret,
+        },
+        timeout=30,
+    )
+    r.raise_for_status()
+    token = r.json().get("access_token")
+    if not token:
+        raise RuntimeError("LDA token endpoint returned no access_token")
+    return token
 
 
 def assess_breach(user_message: str) -> dict:
-    text = (user_message or "").lower()
+    """Ask the LDA QnA endpoint for a legal assessment of the incident."""
+    prompt = (
+        "You are a GDPR/NIS2/DORA compliance assistant. Assess the following "
+        "personal-data incident and explain the obligations, deadlines and "
+        "next steps under EU law. Cite the relevant articles.\n\n"
+        f"Incident description: {user_message}"
+    )
 
-    if any(k in text for k in ("health", "medical", "biometric", "ssn", "passport")):
-        rating = "critical"
-    elif any(k in text for k in ("password", "credential", "financial", "card")):
-        rating = "high"
-    elif any(k in text for k in ("email", "name", "address", "phone")):
-        rating = "medium"
-    else:
-        rating = "low"
-
-    return {
-        "risk_assessment": (
-            "Local assessment based on submitted description. Considered scope of "
-            "personal data, likelihood of harm, and Art.32/Art.33 GDPR obligations. "
-            "Replace this stub with a real model call to refine."
-        ),
-        "risk_rating": rating,
-        "key_gaps": [
-            "Confirm categories of data subjects affected",
-            "Confirm whether Art.9 special category data is involved",
-        ],
-        "notification_draft": (
-            "To the competent supervisory authority,\n\n"
-            "Pursuant to Art.33 GDPR we hereby notify a personal data breach. "
-            "Details of the incident as currently known are described below. "
-            "We will provide further information without undue delay as the "
-            "investigation progresses.\n\n"
-            f"Incident description: {user_message}\n"
-        ),
-        "internal_alert": (
-            "Personal data breach detected. Containment underway. "
-            "Art.33 72h clock has started. Legal + Security on point. "
-            "Awaiting confirmation of affected data categories and subject count."
-        ),
-        "lawyer_handoff": (
-            "Incident summary attached. Frameworks in scope: GDPR (Art.33/34). "
-            "Open items: confirm Art.9 data, finalise subject count, decide "
-            "Art.34 individual notification trigger. Privilege: treat all "
-            "internal comms as legally privileged work product."
-        ),
-        "recommended_actions": [
-            {
-                "action": "Isolate affected systems and preserve forensic evidence",
-                "legal_basis": "GDPR Art.32(1)(b)",
-                "rationale": "Restore confidentiality and integrity of processing",
-            },
-            {
-                "action": "Rotate credentials and revoke active sessions",
-                "legal_basis": "GDPR Art.32(1)(b)",
-                "rationale": "Prevent ongoing unauthorised access",
-            },
-        ],
-        "security_playbook": [
-            {
-                "measure": "Enable MFA on all administrative accounts",
-                "legal_basis": "GDPR Art.32(1)(b)",
-                "priority": "P0",
-                "rationale": "Mitigates credential-based intrusion vectors",
-            },
-            {
-                "measure": "Review and tighten access logs / alerting",
-                "legal_basis": "GDPR Art.30, Art.32",
-                "priority": "P1",
-                "rationale": "Required for accountability and detection",
-            },
-        ],
-        "lawyer_packet": {
-            "incident_summary": user_message[:200],
-            "frameworks_triggered": ["GDPR"],
-            "active_deadlines": [
-                {"framework": "GDPR Art.33", "deadline": "72h from discovery", "status": "running"}
-            ],
-            "decisions_needed": ["Confirm Art.34 individual notification trigger"],
-            "privilege_note": "Treat internal incident comms as privileged work product.",
-            "open_questions": ["How many data subjects are affected?"],
+    token = _get_token()
+    r = httpx.post(
+        QNA_URL,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}",
         },
+        json={
+            "data_asset": DATA_ASSET,
+            "filter": [{}],
+            "mode": "attribution",
+            "prompt": prompt,
+        },
+        timeout=120,
+    )
+    r.raise_for_status()
+    data = r.json()
+    return {
+        "answer": data.get("answer", ""),
+        "sources": data.get("sourcedocuments", []),
+        "response_id": data.get("response_id"),
     }
