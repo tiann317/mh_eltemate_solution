@@ -35,6 +35,16 @@ describe("computeMatrix", () => {
       numAffected: "o50k",
     } as FormState);
     expect(m.y).toBe(2);
+    expect(m.color).toBe("#ffc46b");
+  });
+
+  it("escalates to high when impact + multi-framework regulatory complexity", () => {
+    const m = computeMatrix({
+      ...baseState,
+      dataCategories: ["health"],
+      numAffected: "o50k",
+      sector: "financial",
+    } as FormState);
     expect(m.color).toBe("#ff6b6b");
   });
 
