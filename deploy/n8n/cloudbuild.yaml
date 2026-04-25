@@ -1,0 +1,59 @@
+substitutions:
+  _SERVICE_NAME: n8n-orchestrator
+  _REGION: europe-west1
+  _IMAGE: gcr.io/${PROJECT_ID}/n8n-orchestrator
+  _N8N_HOST: ""
+  _WEBHOOK_URL: ""
+  _DB_HOST: ""
+  _DB_NAME: n8n
+  _DB_USER: n8n
+  _DB_PASSWORD: ""
+  _ENCRYPTION_KEY: ""
+  _BASIC_AUTH_USER: admin
+  _BASIC_AUTH_PASSWORD: ""
+  _LOVABLE_WEBHOOK_SECRET: ""
+  _LDA_CLIENT_ID: ""
+  _LDA_CLIENT_SECRET: ""
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_IMAGE}:${SHORT_SHA}
+      - -t
+      - ${_IMAGE}:latest
+      - -f
+      - deploy/n8n/Dockerfile
+      - deploy/n8n
+
+  - name: gcr.io/cloud-builders/docker
+    args: [push, ${_IMAGE}:${SHORT_SHA}]
+
+  - name: gcr.io/cloud-builders/docker
+    args: [push, ${_IMAGE}:latest]
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE_NAME}
+      - --image=${_IMAGE}:${SHORT_SHA}
+      - --region=${_REGION}
+      - --platform=managed
+      - --allow-unauthenticated
+      - --port=5678
+      - --memory=1Gi
+      - --cpu=1
+      - --min-instances=1
+      - --max-instances=2
+      - --timeout=3600
+      - --set-env-vars=N8N_HOST=${_N8N_HOST},WEBHOOK_URL=${_WEBHOOK_URL},N8N_PROTOCOL=https,N8N_PORT=5678,DB_TYPE=postgresdb,DB_POSTGRESDB_HOST=${_DB_HOST},DB_POSTGRESDB_DATABASE=${_DB_NAME},DB_POSTGRESDB_USER=${_DB_USER},DB_POSTGRESDB_PASSWORD=${_DB_PASSWORD},N8N_ENCRYPTION_KEY=${_ENCRYPTION_KEY},N8N_BASIC_AUTH_ACTIVE=true,N8N_BASIC_AUTH_USER=${_BASIC_AUTH_USER},N8N_BASIC_AUTH_PASSWORD=${_BASIC_AUTH_PASSWORD},LOVABLE_WEBHOOK_SECRET=${_LOVABLE_WEBHOOK_SECRET},LDA_CLIENT_ID=${_LDA_CLIENT_ID},LDA_CLIENT_SECRET=${_LDA_CLIENT_SECRET},N8N_RUNNERS_ENABLED=true
+
+images:
+  - ${_IMAGE}:${SHORT_SHA}
+  - ${_IMAGE}:latest
+
+options:
+  logging: CLOUD_LOGGING_ONLY
