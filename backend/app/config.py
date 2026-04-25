@@ -3,13 +3,18 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 import os
 
 
+_DEFAULT_DATABASE_URL = (
+    f"postgresql://{os.getenv('DB_USER', 'tianna')}"
+    f"@{os.getenv('DB_EXTERNAL_HOST', '0.0.0.0')}"
+    f"/{os.getenv('DB_NAME', 'Hackathon2026')}"
+)
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-    DATABASE_URL = f"postgresql://{os.getenv('DB_USER', 'tianna')}@{
-        os.getenv('DB_EXTERNAL_HOST', '0.0.0.0')
-    }/{os.getenv('DB_NAME', 'Hackathon2026')}"
+
     # Postgres
-    database_url = DATABASE_URL
+    database_url: str = _DEFAULT_DATABASE_URL
     # CORS
     cors_origins: str = "http://localhost:5173"
 
