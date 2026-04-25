@@ -23,7 +23,8 @@ function parseLDA(raw: string | undefined): { id: string; secret: string } | nul
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
-    const creds = parseLDA('{"client_id":"hack01-0fec5330b1ef9f63","client_secret":"41bbeb1670283fc4a73db8dcf2bc3b5d"}');
+    const raw = '{"client_id":"hack01-0fec5330b1ef9f63","client_secret":"41bbeb1670283fc4a73db8dcf2bc3b5d"}';
+    const creds = parseLDA(raw);
     if (!creds) {
       console.warn("LDA secret could not be parsed. Raw preview:", raw?.slice(0, 20));
       return new Response(
