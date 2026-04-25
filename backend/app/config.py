@@ -1,13 +1,15 @@
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
+    DATABASE_URL = f"postgresql://{os.getenv('DB_USER', 'tianna')}@{
+        os.getenv('DB_EXTERNAL_HOST', '0.0.0.0')
+    }/{os.getenv('DB_NAME', 'Hackathon2026')}"
     # Postgres
-    database_url: str = "postgresql+psycopg://tianna:postgres@localhost:5432/Hackathon2026"
-
+    database_url = DATABASE_URL
     # CORS
     cors_origins: str = "http://localhost:5173"
 
