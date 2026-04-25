@@ -4,20 +4,25 @@ from __future__ import annotations
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import JSON, create_engine
+from sqlalchemy import create_engine
+from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+
+# Make Postgres-specific types compile on SQLite for tests.
+@compiles(JSONB, "sqlite")
+def _jsonb_sqlite(type_, compiler, **kw):  # noqa: ANN001
+    return "JSON"
+
+
+@compiles(PG_UUID, "sqlite")
+def _uuid_sqlite(type_, compiler, **kw):  # noqa: ANN001
+    return "CHAR(36)"
 
 
 @pytest.fixture()
 def client():
-    # Make Postgres JSONB compile on SQLite by aliasing it to JSON.
-    # Must be done before importing models.
-    from sqlalchemy.dialects.postgresql import base as pg_base
-    pg_base.ischema_names["jsonb"] = JSON
-    import sqlalchemy.dialects.postgresql as pg
-    pg.JSONB = JSON  # type: ignore[assignment]
-
     from app import db as db_module
     from app.db import get_db
     from app.main import app
