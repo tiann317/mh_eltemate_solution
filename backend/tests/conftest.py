@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import os
+
+# Point the app at SQLite BEFORE it's imported anywhere.
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
