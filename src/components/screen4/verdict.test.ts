@@ -26,7 +26,7 @@ describe("computeVerdict", () => {
 
   it("returns possibly when personal data present without dangers", () => {
     expect(
-      computeVerdict({ ...empty, dataCategories: ["contact"] } as FormState).level,
+      computeVerdict({ ...empty, dataCategories: ["basic-contact"] } as FormState).level,
     ).toBe("possibly");
   });
 
@@ -51,13 +51,13 @@ describe("buildClocks", () => {
   it("emits GDPR clock when personal data present", () => {
     const clocks = buildClocks({
       ...empty,
-      dataCategories: ["contact"],
+      dataCategories: ["basic-contact"],
     } as FormState);
     expect(clocks.some((c) => c.label.includes("GDPR"))).toBe(true);
   });
 
   it("emits DORA 4-hour clock for financial sector", () => {
-    const clocks = buildClocks({ ...empty, sector: "finance" } as FormState);
+    const clocks = buildClocks({ ...empty, sector: "financial" } as FormState);
     expect(clocks.some((c) => c.hours === 4)).toBe(true);
   });
 });
