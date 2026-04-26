@@ -113,7 +113,6 @@ Deno.serve(async (req) => {
           model: upstreamModel,
           // Force valid JSON so downstream parsing is reliable.
           response_format: { type: "json_object" },
-          temperature: 0.2,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             { role: "user", content: userMessage },
