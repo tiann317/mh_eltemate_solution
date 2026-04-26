@@ -24,7 +24,7 @@ import { validateStep, validateAll, StepErrors } from "@/lib/validation";
 
 const Index = () => {
   const location = useLocation();
-  const preCtx = (location.state ?? {}) as { preIntakeId?: string; severity?: "suspected" | "definite" };
+  const preCtx = (location.state ?? {}) as { preIntakeId?: string; severity?: "suspected" | "definite"; skipToAssessment?: boolean };
   const [step, setStep] = useState(1);
   const [state, setStateRaw] = useState<FormState>(initialState);
   const [errors, setErrors] = useState<StepErrors>({});
