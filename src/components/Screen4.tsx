@@ -350,31 +350,8 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 export const Screen4 = ({
   state, ldaGdpr, ldaNis2, ldaDora, ldaConnected, ai, aiError, auditLog,
-  incidentId, preIntakeId, onBack, onRestart,
+  onBack, onRestart,
 }: Props) => {
-  // Look up the responsible person (if any) chosen at pre-intake.
-  const [defaultStaffId, setDefaultStaffId] = useState<string>("");
-  useEffect(() => {
-    (async () => {
-      if (incidentId) {
-        const { data } = await supabase
-          .from("incidents")
-          .select("responsible_staff_id")
-          .eq("id", incidentId)
-          .maybeSingle();
-        if (data?.responsible_staff_id) { setDefaultStaffId(data.responsible_staff_id); return; }
-      }
-      if (preIntakeId) {
-        const { data } = await supabase
-          .from("pre_intakes")
-          .select("responsible_staff_id")
-          .eq("id", preIntakeId)
-          .maybeSingle();
-        if (data?.responsible_staff_id) setDefaultStaffId(data.responsible_staff_id);
-      }
-    })();
-  }, [incidentId, preIntakeId]);
-
   const verdict = computeVerdict(state);
   const clocks = buildClocks(state);
   const dpaName = state.jurisdiction ? DPA_MAP[state.jurisdiction] : "your lead supervisory authority";
