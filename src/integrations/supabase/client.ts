@@ -5,7 +5,8 @@
 
 import { runEdgeFunction } from "./edgeFunctions";
 
-type Row = Record<string, unknown> & { id?: string };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Row = any;
 
 const STORAGE_KEY = "aegis-local-db-v1";
 const isBrowser = typeof window !== "undefined";
