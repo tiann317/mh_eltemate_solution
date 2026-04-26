@@ -143,7 +143,7 @@ Deno.serve(async (req) => {
           JSON.stringify({
             error:
               provider === "openai"
-                ? "OpenAI rejected the API key. Verify OPENAI_API_KEY in backend secrets is valid and has access to gpt-4o-mini."
+                ? "OpenAI rejected the API key. Verify OPENAI_API_KEY in backend secrets is valid and has access to gpt-5.5."
                 : "AI gateway rejected the request (auth).",
           }),
           { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
