@@ -9,6 +9,7 @@ import { Screen3 } from "@/components/Screen3";
 import { Screen35 } from "@/components/Screen35";
 import { ScreenReview } from "@/components/ScreenReview";
 import { Screen4 } from "@/components/Screen4";
+import { DevJumpBar } from "@/components/DevJumpBar";
 import { supabase } from "@/integrations/supabase/client";
 import {
   initialState, FormState, fmtTimestamp,
@@ -304,6 +305,16 @@ const Index = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
+      <DevJumpBar
+        current={step}
+        onJump={(s) => {
+          // Jump without mutating form state — fields stay empty unless the
+          // user has already filled them. This is dev-only (hidden in PROD).
+          setErrors({});
+          setStep(s);
+          log(`Dev jump → step ${s}`);
+        }}
+      />
       <Stepper current={step === 35 ? 4 : step === 38 ? 5 : step >= 4 ? 6 : step} />
       <main className="flex-1">
         {loading ? (
