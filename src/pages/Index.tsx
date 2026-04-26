@@ -337,6 +337,7 @@ const Index = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <DevJumpBar onAutofill={devAutofill} onSkipToAssessment={devSkipToAssessment} />
       <Header />
       <Stepper current={step === 35 ? 4 : step === 38 ? 5 : step >= 4 ? 6 : step} />
       <main className="flex-1">
