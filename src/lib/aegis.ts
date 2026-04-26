@@ -473,7 +473,6 @@ export const callOpenAI = async (userMessage: string): Promise<AIAssessment | nu
         body: JSON.stringify({
           model: "gpt-5.5",
           response_format: { type: "json_object" },
-          temperature: 0.2,
           messages: [
             { role: "system", content: OPENAI_SYSTEM_PROMPT },
             { role: "user", content: userMessage },
