@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Header, Footer } from "@/components/Chrome";
 import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 import { EscalateButton } from "@/components/EscalateButton";
+import { DevJumpBar, fakePreIntake } from "@/components/DevJumpBar";
 import { supabase } from "@/integrations/supabase/client";
 import { classifyLiteracy } from "@/lib/literacy";
 
@@ -137,6 +138,13 @@ const PreIntake = () => {
   return (
     <div className="flex flex-col min-h-screen" style={{ background: "#ffffff" }}>
       <a href="#main" className="skip-to-main">Skip to main content</a>
+      <DevJumpBar
+        onAutofill={() => setForm(p => ({ ...p, ...fakePreIntake, responsible_staff_id: p.responsible_staff_id }))}
+        onSkipToAssessment={() => {
+          setForm(p => ({ ...p, ...fakePreIntake, responsible_staff_id: p.responsible_staff_id }));
+          navigate("/intake", { state: { skipToAssessment: true, severity: "definite" } });
+        }}
+      />
       <Header />
       <main id="main" className="flex-1" style={{ padding: 32 }}>
         <div className="mx-auto" style={{ maxWidth: 760 }}>

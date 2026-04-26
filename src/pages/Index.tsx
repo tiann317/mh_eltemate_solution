@@ -9,6 +9,7 @@ import { Screen3 } from "@/components/Screen3";
 import { Screen35 } from "@/components/Screen35";
 import { ScreenReview } from "@/components/ScreenReview";
 import { Screen4 } from "@/components/Screen4";
+import { DevJumpBar, fakeIntake } from "@/components/DevJumpBar";
 import { supabase } from "@/integrations/supabase/client";
 import {
   initialState, FormState, fmtTimestamp,
@@ -23,7 +24,7 @@ import { validateStep, validateAll, StepErrors } from "@/lib/validation";
 
 const Index = () => {
   const location = useLocation();
-  const preCtx = (location.state ?? {}) as { preIntakeId?: string; severity?: "suspected" | "definite" };
+  const preCtx = (location.state ?? {}) as { preIntakeId?: string; severity?: "suspected" | "definite"; skipToAssessment?: boolean };
   const [step, setStep] = useState(1);
   const [state, setStateRaw] = useState<FormState>(initialState);
   const [errors, setErrors] = useState<StepErrors>({});
@@ -305,8 +306,38 @@ const Index = () => {
     log("New incident started — form reset");
   };
 
+  // Dev helpers: autofill the intake state and (optionally) jump straight to assessment.
+  const [pendingGenerate, setPendingGenerate] = useState(false);
+  const devAutofill = () => {
+    setStateRaw(fakeIntake);
+    log("Dev: intake form autofilled with fake data");
+  };
+  const devSkipToAssessment = () => {
+    setStateRaw(fakeIntake);
+    setPendingGenerate(true);
+  };
+  useEffect(() => {
+    if (pendingGenerate && state === fakeIntake) {
+      setPendingGenerate(false);
+      handleGenerate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingGenerate, state]);
+
+  // If we arrived here from PreIntake's "Skip to assessment" dev button, run once.
+  const skipFiredRef = useRef(false);
+  useEffect(() => {
+    if (preCtx.skipToAssessment && !skipFiredRef.current) {
+      skipFiredRef.current = true;
+      devSkipToAssessment();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preCtx.skipToAssessment]);
+
+
   return (
     <div className="flex flex-col min-h-screen">
+      <DevJumpBar onAutofill={devAutofill} onSkipToAssessment={devSkipToAssessment} />
       <Header />
       <Stepper current={step === 35 ? 4 : step === 38 ? 5 : step >= 4 ? 6 : step} />
       <main className="flex-1">
