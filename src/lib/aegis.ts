@@ -471,7 +471,7 @@ export const callOpenAI = async (userMessage: string): Promise<AIAssessment | nu
           Authorization: `Bearer ${OPENAI_KEY}`,
         },
         body: JSON.stringify({
-          model: "gpt-4o-mini",
+          model: "gpt-5.5",
           response_format: { type: "json_object" },
           temperature: 0.2,
           messages: [
