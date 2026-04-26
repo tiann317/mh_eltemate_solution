@@ -9,13 +9,14 @@ const corsHeaders = {
 
 function parseLDA(raw: string | undefined): { id: string; secret: string } | null {
   if (!raw) return null;
+  const trimmed = raw.trim();
   try {
-    const j = JSON.parse(raw);
+    const j = JSON.parse(trimmed);
     if (j.client_id && j.client_secret) return { id: j.client_id, secret: j.client_secret };
   } catch { /* not json */ }
-  if (raw.includes(":")) {
-    const [id, ...rest] = raw.split(":");
-    return { id, secret: rest.join(":") };
+  if (trimmed.includes(":")) {
+    const [id, ...rest] = trimmed.split(":");
+    return { id: id.trim(), secret: rest.join(":").trim() };
   }
   return null;
 }
@@ -23,10 +24,10 @@ function parseLDA(raw: string | undefined): { id: string; secret: string } | nul
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
-    const raw = Deno.env.get("LDA") ?? '{"client_id":"hack01-0fec5330b1ef9f63","client_secret":"41bbeb1670283fc4a73db8dcf2bc3b5d"}';
+    const raw = JSON.stringify({"client_id":"hack01-0fec5330b1ef9f63","client_secret":"41bbeb1670283fc4a73db8dcf2bc3b5d"});
     const creds = parseLDA(raw);
     if (!creds) {
-      console.warn("LDA secret could not be parsed. Raw preview:", raw?.slice(0, 20));
+      console.warn("LDA secret could not be parsed. hasEnv:", !!raw, "len:", raw?.length ?? 0);
       return new Response(
         JSON.stringify({
           answer: "",
@@ -55,7 +56,9 @@ Deno.serve(async (req) => {
       }),
     });
     if (!tokRes.ok) {
-      return new Response(JSON.stringify({ error: "LDA token request failed." }), {
+      const t = await tokRes.text();
+      console.error("LDA token request failed", tokRes.status, t.slice(0, 200));
+      return new Response(JSON.stringify({ error: "LDA token request failed.", status: tokRes.status }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

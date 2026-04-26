@@ -53,30 +53,20 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Prefer the user's own OpenAI key for the legal track, so the assessment
-    // is anchored in OpenAI's models (auditable provider). Fall back to the
-    // Lovable AI Gateway only if no OpenAI key is configured.
-    //
-    // We accept any of these secret names so the user can configure it however
-    // they prefer in Lovable Cloud → Backend → Secrets:
-    //   • OpenAI            (current secret name in this project)
-    //   • OPENAI_API_KEY    (canonical OpenAI naming)
-    //   • VITE_OPENAI_API_KEY (matches the variable the UI references)
-    const openaiKey =
-      Deno.env.get("OPENAI_API_KEY") ||
-      Deno.env.get("OpenAI") ||
-      Deno.env.get("VITE_OPENAI_API_KEY");
+    // Legal track intentionally uses Lovable AI (Gemini) ONLY.
+    // The OpenAI key remains configured in the project for other features,
+    // but the legal assessment must not depend on it.
     const lovableKey = Deno.env.get("LOVABLE_API_KEY");
 
-    if (!openaiKey && !lovableKey) {
+    if (!lovableKey) {
       return new Response(
         JSON.stringify({
-          error:
-            "No AI provider configured. Set OPENAI_API_KEY (or VITE_OPENAI_API_KEY) for the legal track, or enable Lovable AI.",
+          error: "Lovable AI is not configured for the legal track.",
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
+    const openaiKey: string | undefined = undefined;
 
     const { userMessage } = await req.json();
     if (!userMessage || typeof userMessage !== "string") {
@@ -86,11 +76,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    const useOpenAI = !!openaiKey;
+    // Prefer Lovable AI (always available, no extra setup). Only use OpenAI
+    // if the Lovable key is missing AND a valid OpenAI key is configured.
+    const useOpenAI = !lovableKey && !!openaiKey;
     const upstreamUrl = useOpenAI
       ? "https://api.openai.com/v1/chat/completions"
       : "https://ai.gateway.lovable.dev/v1/chat/completions";
-    const upstreamModel = useOpenAI ? "gpt-5.5" : "google/gemini-2.5-flash";
+    const upstreamModel = useOpenAI ? "gpt-4o" : "google/gemini-2.5-flash";
     const upstreamAuth = useOpenAI ? openaiKey! : lovableKey!;
     const provider = useOpenAI ? "openai" : "lovable-ai";
     console.log(`assess-breach using provider=${provider} model=${upstreamModel}`);
@@ -113,6 +105,7 @@ Deno.serve(async (req) => {
           model: upstreamModel,
           // Force valid JSON so downstream parsing is reliable.
           response_format: { type: "json_object" },
+          temperature: 0.2,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             { role: "user", content: userMessage },
@@ -142,7 +135,7 @@ Deno.serve(async (req) => {
           JSON.stringify({
             error:
               provider === "openai"
-                ? "OpenAI rejected the API key. Verify OPENAI_API_KEY in backend secrets is valid and has access to gpt-5.5."
+                ? "OpenAI rejected the API key. Verify OPENAI_API_KEY in backend secrets is valid and has access to gpt-4o-mini."
                 : "AI gateway rejected the request (auth).",
           }),
           { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },

@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Alert } from "./Alert";
 import { ValidationBanner } from "./ValidationBanner";
 import { FieldExplainer } from "./FieldExplainer";
@@ -9,28 +10,43 @@ interface Props {
   state: FormState;
   setState: (s: FormState) => void;
   errors?: StepErrors;
-  onNext: () => void;
+  onNext: (draft?: FormState) => void;
 }
 
 export const Screen1 = ({ state, setState, errors, onNext }: Props) => {
+  const discoveryInputRef = useRef<HTMLInputElement>(null);
+
   const update = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setState({ ...state, [k]: v });
+
+  const handleNext = () => {
+    const latestDiscoveryTime = discoveryInputRef.current?.value ?? state.discoveryTime;
+    const draft = latestDiscoveryTime !== state.discoveryTime
+      ? { ...state, discoveryTime: latestDiscoveryTime }
+      : state;
+
+    if (draft !== state) setState(draft);
+    onNext(draft);
+  };
 
   return (
     <div className="mx-auto" style={{ maxWidth: 760, padding: 32 }}>
       <ValidationBanner errors={errors} />
-      <div className="aegis-section-label mb-2">Step 1 of 5</div>
-      <h2 className="aegis-title mb-3">Discovery & Incident Basics</h2>
+      <div className="aegis-section-label mb-2">Step 1 of 5 · What happened</div>
+      <h2 className="aegis-title mb-3">Tell us what you've found</h2>
       <p className="aegis-helper mb-8">
-        Completed by: IT / InfoSec first responder. Fill in immediately on discovery.
+        These first questions help us understand the basics. Best filled in by
+        the person who first noticed the issue, or by your IT or security team.
+        If you don't know an answer, choose "unknown" — that's useful too.
       </p>
 
       <div className="aegis-card mb-6">
         <label className="aegis-label" htmlFor="discoveryTime">
-          Date and time of discovery <span style={{ color: "#ff6b6b" }}>*</span>
+          When did you (or your team) first notice this? <span style={{ color: "#ff6b6b" }}>*</span>
         </label>
         <input
           id="discoveryTime"
+          ref={discoveryInputRef}
           type="datetime-local"
           className="aegis-input"
           value={state.discoveryTime}
@@ -38,19 +54,21 @@ export const Screen1 = ({ state, setState, errors, onNext }: Props) => {
           required
         />
         <div className="aegis-field-helper">
-          This starts all regulatory clocks. Record to the minute. Source: SOC alert, incident ticket, or the person who found it.
+          As exact as you can — the date and time matter. This is when reporting
+          deadlines start running. Use the time on the alert, the ticket, or
+          when the person who spotted it first realised something was wrong.
         </div>
         <FieldExplainer
-          term="discovery"
-          plain="Under EU breach law, &lsquo;discovery&rsquo; is the moment your organisation becomes reasonably certain that a breach has occurred — not when investigation completes. The 72-hour clock starts here."
-          examples="A SOC analyst confirms ransom note; a sysadmin sees encrypted files; a customer reports their data appearing online."
+          term="What 'noticing' means here"
+          plain="In data-protection law, the clock starts when your organisation is reasonably sure something has gone wrong — not when the full investigation is finished. Best to record the earliest credible moment."
+          examples="A security analyst confirms a ransom note; an admin sees files are encrypted; a customer tells you their data has appeared online."
           cite="GDPR Art.33(1); EDPB Guidelines WP250"
         />
       </div>
 
       <div className="aegis-card mb-6">
         <label className="aegis-label" htmlFor="incidentType">
-          Type of incident <span style={{ color: "#ff6b6b" }}>*</span>
+          What kind of incident is this? <span style={{ color: "#ff6b6b" }}>*</span>
         </label>
         <select
           id="incidentType"
@@ -59,14 +77,14 @@ export const Screen1 = ({ state, setState, errors, onNext }: Props) => {
           onChange={(e) => update("incidentType", e.target.value as IncidentType)}
           required
         >
-          <option value="">(select...)</option>
+          <option value="">Choose the closest match…</option>
           {(Object.keys(INCIDENT_TYPE_LABELS) as Array<keyof typeof INCIDENT_TYPE_LABELS>).map((k) => (
             <option key={k} value={k}>{INCIDENT_TYPE_LABELS[k]}</option>
           ))}
         </select>
         <FieldExplainer
-          term="personal data breach"
-          plain="A breach of security leading to the accidental or unlawful destruction, loss, alteration, unauthorised disclosure of, or access to, personal data. Loss of availability counts — encryption by ransomware is a breach even without exfiltration."
+          term="What counts as a 'data breach'"
+          plain="Anything that means personal information is lost, changed, seen by someone who shouldn't have seen it, or made unavailable — even temporarily. Ransomware that locks files counts, even if no one stole them."
           cite="GDPR Art.4(12)"
         />
 
@@ -96,7 +114,7 @@ export const Screen1 = ({ state, setState, errors, onNext }: Props) => {
             trigger="Incident type = Ransomware"
           />
           <label className="aegis-label" htmlFor="backups">
-            Are clean, recent backups available? <span style={{ color: "#ff6b6b" }}>*</span>
+            Do you have a recent, working backup you can restore from? <span style={{ color: "#ff6b6b" }}>*</span>
           </label>
           <select
             id="backups"
@@ -104,10 +122,10 @@ export const Screen1 = ({ state, setState, errors, onNext }: Props) => {
             value={state.backupsAvailable}
             onChange={e => update("backupsAvailable", e.target.value as FormState["backupsAvailable"])}
           >
-            <option value="">(select...)</option>
-            <option value="yes">Yes — restore in progress / possible without paying ransom</option>
-            <option value="no">No — backups also encrypted or unavailable</option>
-            <option value="unknown">Unknown — under assessment</option>
+            <option value="">Choose one…</option>
+            <option value="yes">Yes — we can restore without paying the ransom</option>
+            <option value="no">No — backups are also affected or missing</option>
+            <option value="unknown">Not sure yet — still checking</option>
           </select>
           {state.backupsAvailable === "no" && (
             <Alert
@@ -128,7 +146,7 @@ export const Screen1 = ({ state, setState, errors, onNext }: Props) => {
             trigger="Incident type = Lost / stolen device"
           />
           <label className="aegis-label" htmlFor="encrypted">
-            Was the device encrypted with strong, current keys? <span style={{ color: "#ff6b6b" }}>*</span>
+            Was the device protected with up-to-date encryption? <span style={{ color: "#ff6b6b" }}>*</span>
           </label>
           <select
             id="encrypted"
@@ -136,10 +154,10 @@ export const Screen1 = ({ state, setState, errors, onNext }: Props) => {
             value={state.deviceEncrypted}
             onChange={e => update("deviceEncrypted", e.target.value as FormState["deviceEncrypted"])}
           >
-            <option value="">(select...)</option>
-            <option value="yes">Yes — full-disk encryption, keys not compromised</option>
-            <option value="no">No — unencrypted or weak encryption</option>
-            <option value="unknown">Unknown</option>
+            <option value="">Choose one…</option>
+            <option value="yes">Yes — full-disk encryption was on, and the password / key wasn't compromised</option>
+            <option value="no">No — it was unencrypted, or the encryption was weak / out of date</option>
+            <option value="unknown">Not sure</option>
           </select>
           {state.deviceEncrypted === "yes" && (
             <Alert
@@ -168,7 +186,7 @@ export const Screen1 = ({ state, setState, errors, onNext }: Props) => {
             trigger="Incident type = Unauthorised access"
           />
           <label className="aegis-label" htmlFor="exfil">
-            Is data exfiltration confirmed? <span style={{ color: "#ff6b6b" }}>*</span>
+            Do you have evidence that data was actually copied or taken? <span style={{ color: "#ff6b6b" }}>*</span>
           </label>
           <select
             id="exfil"
@@ -176,45 +194,46 @@ export const Screen1 = ({ state, setState, errors, onNext }: Props) => {
             value={state.exfiltrationConfirmed}
             onChange={e => update("exfiltrationConfirmed", e.target.value as FormState["exfiltrationConfirmed"])}
           >
-            <option value="">(select...)</option>
-            <option value="yes">Yes — exfiltration evidenced (egress logs / extortion sample / leak)</option>
-            <option value="no">No — access only, no evidence of copy-out</option>
-            <option value="unknown">Unknown — investigation ongoing</option>
+            <option value="">Choose one…</option>
+            <option value="yes">Yes — we've seen proof (network logs, a leaked sample, or an extortion message)</option>
+            <option value="no">No — someone got in, but we don't have evidence anything was copied out</option>
+            <option value="unknown">Not sure yet — still investigating</option>
           </select>
         </div>
       )}
 
       <div className="aegis-card mb-6">
-        <label className="aegis-label" htmlFor="systems">Systems or assets affected</label>
+        <label className="aegis-label" htmlFor="systems">Which systems or services are affected?</label>
         <input
           id="systems"
           type="text"
           className="aegis-input"
-          placeholder="e.g. CRM database, HR system, vehicle telematics platform"
+          placeholder="e.g. our customer database, the HR portal, the connected-vehicle platform"
           value={state.systemsAffected}
           onChange={(e) => update("systemsAffected", e.target.value)}
         />
         <div className="aegis-field-helper">
-          Be specific. System name helps identify the data owner and what data may be held. Source: IT asset register, CMDB, or system owner.
+          The names you'd use internally are fine. This helps us understand
+          what kind of information may have been touched and who looks after it.
         </div>
       </div>
 
       <div className="aegis-card mb-8">
-        <label className="aegis-label" htmlFor="ongoing">Incident status</label>
+        <label className="aegis-label" htmlFor="ongoing">Is the incident still happening right now?</label>
         <select
           id="ongoing"
           className="aegis-select"
           value={state.ongoingStatus}
           onChange={(e) => update("ongoingStatus", e.target.value as OngoingStatus)}
         >
-          <option value="">(select...)</option>
+          <option value="">Choose one…</option>
           {(Object.keys(ONGOING_LABELS) as Array<keyof typeof ONGOING_LABELS>).map((k) => (
             <option key={k} value={k}>{ONGOING_LABELS[k]}</option>
           ))}
         </select>
         <FieldExplainer
-          term="containment"
-          plain="Containment means the attacker no longer has the access they used to cause the breach, and no further damage is being done. It is not the same as full remediation."
+          term="What 'contained' means"
+          plain="Contained means whoever (or whatever) caused the issue can no longer make it worse — for example, the attacker has been locked out, or the affected device has been disconnected. It doesn't mean everything is fixed."
         />
 
         {state.ongoingStatus === "yes" && (
@@ -229,10 +248,9 @@ export const Screen1 = ({ state, setState, errors, onNext }: Props) => {
 
       <button
         className="aegis-btn-primary"
-        onClick={onNext}
-        disabled={!state.discoveryTime || !state.incidentType}
+        onClick={handleNext}
       >
-        Next: data &amp; people →
+        Next: who and what was affected →
       </button>
     </div>
   );

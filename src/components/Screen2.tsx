@@ -55,33 +55,36 @@ export const Screen2 = ({ state, setState, errors, onBack, onNext }: Props) => {
   return (
     <div className="mx-auto" style={{ maxWidth: 760, padding: 32 }}>
       <ValidationBanner errors={errors} />
-      <div className="aegis-section-label mb-2">Step 2 of 5</div>
-      <h2 className="aegis-title mb-3">Data Categories &amp; People Affected</h2>
+      <div className="aegis-section-label mb-2">Step 2 of 5 · Who and what is affected</div>
+      <h2 className="aegis-title mb-3">What kind of information, and how many people?</h2>
       <p className="aegis-helper mb-8">
-        Completed by: Data Protection Officer and system / data owner. This determines notifiability under GDPR Art.33.
+        Best filled in with help from your Data Protection Officer or whoever
+        knows the system. Rough estimates are fine — we'd rather have an
+        approximate answer now than a perfect one later.
       </p>
 
       <div className="aegis-card mb-6">
         <div className="aegis-label">
-          Categories of personal data involved <span style={{ color: "#ff6b6b" }}>*</span>
+          What kinds of personal information might be involved? <span style={{ color: "#ff6b6b" }}>*</span>
         </div>
         <div className="aegis-field-helper" style={{ marginTop: 0, marginBottom: 12 }}>
-          Select all that apply. Source: data inventory, ROPA, system owner, or DPO. If unknown, select the last option.
+          Tick everything that could apply. If you don't yet know, choose
+          "Not sure yet" at the end — that's an honest and valid answer.
         </div>
         <FieldExplainer
-          term="personal data"
-          plain="Any information relating to an identified or identifiable natural person — directly (name, ID number) or indirectly (IP address, device ID, location, an online identifier)."
-          examples="Email address, employee number, photo, GPS trace, customer ID, vehicle VIN linked to an owner."
+          term="What 'personal information' covers"
+          plain="Any detail that could identify a living person — on its own or combined with other details. That includes obvious things like names and emails, and less obvious ones like an IP address, a customer number, or a vehicle ID."
+          examples="Email address, employee number, photo, GPS trace, customer ID, a vehicle linked to its owner."
           cite="GDPR Art.4(1)"
         />
         <FieldExplainer
-          term="special category data"
-          plain="A protected sub-set of personal data: racial/ethnic origin, political opinions, religious beliefs, trade-union membership, genetic, biometric, health, sex-life or sexual-orientation data. Breaches involving these almost always require both DPA and individual notification."
+          term="Why some categories are extra-sensitive"
+          plain="Information about health, ethnicity, religion, sex life, political views, biometrics or trade-union membership gets stronger legal protection. If a breach involves any of these, you'll almost always need to tell both the regulator and the people affected."
           cite="GDPR Art.9(1)"
         />
         <FieldExplainer
-          term="children's data"
-          plain="Personal data relating to children. EU law treats children as warranting specific protection because they are less aware of risks. Breaches involving children's data almost always meet the &lsquo;high risk&rsquo; threshold."
+          term="Why children's data is treated differently"
+          plain="Children may not understand the risks involved, so the law expects extra care. A breach involving children's data is almost always treated as high risk."
           cite="GDPR Recital 38; Art.8"
         />
         <div className="flex flex-wrap gap-2">
@@ -134,25 +137,25 @@ export const Screen2 = ({ state, setState, errors, onBack, onNext }: Props) => {
             reason="Children's data triggers heightened protection — the age band shapes whether parental notification or child-friendly language is required."
             trigger="Data category = Children's data"
           />
-          <label className="aegis-label" htmlFor="ageBand">Age band of affected children</label>
+          <label className="aegis-label" htmlFor="ageBand">Roughly what age are the children?</label>
           <select
             id="ageBand"
             className="aegis-select"
             value={state.childrenAgeBand}
             onChange={e => setState({ ...state, childrenAgeBand: e.target.value })}
           >
-            <option value="">(select...)</option>
+            <option value="">Choose one…</option>
             <option value="under-13">Under 13</option>
             <option value="13-16">13 – 16</option>
             <option value="16-18">16 – 18</option>
-            <option value="mixed">Mixed / unknown</option>
+            <option value="mixed">A mix, or not sure</option>
           </select>
         </div>
       )}
 
       <div className="aegis-card mb-6">
         <label className="aegis-label" htmlFor="numAffected">
-          Approximate number of individuals affected <span style={{ color: "#ff6b6b" }}>*</span>
+          Roughly how many people might be affected? <span style={{ color: "#ff6b6b" }}>*</span>
         </label>
         <select
           id="numAffected"
@@ -161,13 +164,14 @@ export const Screen2 = ({ state, setState, errors, onBack, onNext }: Props) => {
           onChange={e => setState({ ...state, numAffected: e.target.value as NumAffected })}
           required
         >
-          <option value="">(select...)</option>
+          <option value="">Choose the closest range…</option>
           {(Object.keys(NUM_AFFECTED_LABELS) as Array<keyof typeof NUM_AFFECTED_LABELS>).map(k => (
             <option key={k} value={k}>{NUM_AFFECTED_LABELS[k]}</option>
           ))}
         </select>
         <div className="aegis-field-helper">
-          Source: database admin, system owner, or data inventory. Estimate now — refine later. The clock does not wait for exact figures.
+          A best estimate is fine. If the number turns out to be different,
+          you can update it later — the deadlines don't wait for an exact figure.
         </div>
         {highVolume && (
           <Alert
@@ -180,9 +184,11 @@ export const Screen2 = ({ state, setState, errors, onBack, onNext }: Props) => {
       </div>
 
       <div className="aegis-card mb-8">
-        <div className="aegis-label">Potential harm to affected individuals</div>
+        <div className="aegis-label">What harm could this cause to the people affected?</div>
         <div className="aegis-field-helper" style={{ marginTop: 0, marginBottom: 12 }}>
-          Source: DPO judgment informed by data type and context. Select all that could plausibly apply.
+          Tick anything that could plausibly happen — even if it hasn't yet.
+          Thinking about real impact on people is at the heart of how regulators
+          decide whether to be told, and whether the people themselves should be told.
         </div>
         <div className="flex flex-wrap gap-2">
           {HARM_ORDER.map(h => {
@@ -219,7 +225,7 @@ export const Screen2 = ({ state, setState, errors, onBack, onNext }: Props) => {
           onClick={onNext}
           disabled={state.dataCategories.length === 0 || !state.numAffected}
         >
-          Next: organisation →
+          Next: about your organisation →
         </button>
       </div>
     </div>
