@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
     const upstreamUrl = useOpenAI
       ? "https://api.openai.com/v1/chat/completions"
       : "https://ai.gateway.lovable.dev/v1/chat/completions";
-    const upstreamModel = useOpenAI ? "gpt-4o-mini" : "google/gemini-2.5-flash";
+    const upstreamModel = useOpenAI ? "gpt-5.5" : "google/gemini-2.5-flash";
     const upstreamAuth = useOpenAI ? openaiKey! : lovableKey!;
     const provider = useOpenAI ? "openai" : "lovable-ai";
     console.log(`assess-breach using provider=${provider} model=${upstreamModel}`);
