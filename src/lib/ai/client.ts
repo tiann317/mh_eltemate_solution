@@ -14,6 +14,16 @@ export interface LDAResult {
   skipped?: string;
 }
 
+interface LdaResponse {
+  answer?: string;
+  sources?: LDASource[];
+  skipped?: string;
+}
+
+interface AssessResponse {
+  assessment?: AIAssessment;
+}
+
 export const LDA_PROMPTS = {
   gdpr: "What are the criteria for determining whether a personal data breach must be notified to a supervisory authority under GDPR Article 33, and when must individuals be notified under Article 34?",
   nis2: "What are the incident notification obligations under NIS2 Directive Article 23 for essential and important entities, including the 24-hour early warning and 72-hour notification deadlines?",
@@ -25,8 +35,7 @@ export const getLDAToken = async (): Promise<string | null> => {
     const { data, error } = await supabase.functions.invoke("query-lda", {
       body: { prompt: "ping" },
     });
-    if (error || !data || data.error) return null;
-    if (data.skipped) return null;
+    if (error || !data) return null;
     return "server-managed";
   } catch {
     return null;
@@ -38,11 +47,12 @@ export const queryLDA = async (_token: string, prompt: string): Promise<LDAResul
     const { data, error } = await supabase.functions.invoke("query-lda", {
       body: { prompt },
     });
-    if (error || !data || data.error) return { answer: "", sources: [] };
+    if (error || !data) return { answer: "", sources: [] };
+    const result = data as LdaResponse;
     return {
-      answer: data.answer ?? "",
-      sources: Array.isArray(data.sources) ? data.sources : [],
-      skipped: typeof data.skipped === "string" ? data.skipped : undefined,
+      answer: result.answer ?? "",
+      sources: Array.isArray(result.sources) ? result.sources : [],
+      skipped: typeof result.skipped === "string" ? result.skipped : undefined,
     };
   } catch {
     return { answer: "", sources: [] };
@@ -54,11 +64,12 @@ export const callOpenAI = async (userMessage: string): Promise<AIAssessment | nu
     const { data, error } = await supabase.functions.invoke("assess-breach", {
       body: { userMessage },
     });
-    if (error || !data || data.error || !data.assessment) {
-      console.error("assess-breach error", error || data?.error);
+    if (error || !data) {
+      console.error("assess-breach error", error);
       return null;
     }
-    return data.assessment as AIAssessment;
+    const result = data as AssessResponse;
+    return result.assessment ?? null;
   } catch (e) {
     console.error("callOpenAI exception", e);
     return null;

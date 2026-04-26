@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
-# Run n8n locally for development.
-# Usage: ./deploy/n8n/run.sh [up|down|logs|reset|import]
+# Run n8n locally with Docker Compose v2 (`docker compose`, no `-f` quirk).
+# Usage: ./run.sh [up|down|logs|reset|import]
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COMPOSE_FILE="${SCRIPT_DIR}/docker-compose.yml"
-ENV_FILE="${SCRIPT_DIR}/.env"
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${HERE}"
 
-ensure_env() {
-  if [[ ! -f "${ENV_FILE}" ]]; then
-    echo "Creating ${ENV_FILE} with defaults — edit it before exposing publicly."
-    cat > "${ENV_FILE}" <<EOF
-# n8n local config — DO NOT commit
+writeEnvIfMissing() {
+  if [[ -f .env ]]; then return; fi
+  cat > .env <<EOF
 N8N_BASIC_AUTH_USER=admin
 N8N_BASIC_AUTH_PASSWORD=$(openssl rand -hex 12)
 N8N_ENCRYPTION_KEY=$(openssl rand -hex 16)
@@ -22,17 +19,14 @@ N8N_HOST=localhost
 N8N_PORT=5678
 N8N_PROTOCOL=http
 WEBHOOK_URL=http://localhost:5678/
-LDA_CLIENT_ID=
-LDA_CLIENT_SECRET=
 GITHUB_TOKEN=
 EOF
-    echo "Generated credentials written to ${ENV_FILE}"
-  fi
+  echo "Created .env with random credentials."
 }
 
-ensure_compose() {
-  if [[ ! -f "${COMPOSE_FILE}" ]]; then
-    cat > "${COMPOSE_FILE}" <<'YAML'
+writeComposeIfMissing() {
+  if [[ -f docker-compose.yml ]]; then return; fi
+  cat > docker-compose.yml <<'YAML'
 services:
   n8n:
     image: n8nio/n8n:latest
@@ -53,36 +47,35 @@ services:
 volumes:
   n8n_data:
 YAML
-  fi
 }
 
-cmd="${1:-up}"
-ensure_env
-ensure_compose
+action="${1:-up}"
+writeEnvIfMissing
+writeComposeIfMissing
 
-case "${cmd}" in
+case "${action}" in
   up)
-    docker compose -f "${COMPOSE_FILE}" up -d
+    docker compose up -d
+    user=$(grep N8N_BASIC_AUTH_USER .env | cut -d= -f2)
+    pass=$(grep N8N_BASIC_AUTH_PASSWORD .env | cut -d= -f2)
     echo
     echo "n8n running at http://localhost:5678"
-    echo "Login:    $(grep N8N_BASIC_AUTH_USER "${ENV_FILE}" | cut -d= -f2)"
-    echo "Password: $(grep N8N_BASIC_AUTH_PASSWORD "${ENV_FILE}" | cut -d= -f2)"
+    echo "Login:    ${user}"
+    echo "Password: ${pass}"
     echo "Webhook:  http://localhost:5678/webhook/lovable-deploy"
     ;;
   down)
-    docker compose -f "${COMPOSE_FILE}" down
+    docker compose down
     ;;
   logs)
-    docker compose -f "${COMPOSE_FILE}" logs -f n8n
+    docker compose logs -f n8n
     ;;
   reset)
-    docker compose -f "${COMPOSE_FILE}" down -v
+    docker compose down -v
     echo "Wiped n8n_data volume."
     ;;
   import)
-    docker compose -f "${COMPOSE_FILE}" exec n8n \
-      n8n import:workflow --separate --input=/workflows
-    echo "Imported workflows from ./workflows"
+    docker compose exec n8n n8n import:workflow --separate --input=/workflows
     ;;
   *)
     echo "Usage: $0 [up|down|logs|reset|import]"
