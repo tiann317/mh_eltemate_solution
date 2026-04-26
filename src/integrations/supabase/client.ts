@@ -2,16 +2,33 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  // Don't throw at module load — that would blank the whole app.
+  // Log a clear, actionable error and fall back to a harmless placeholder
+  // so the UI still renders. Network calls will fail gracefully.
+  // eslint-disable-next-line no-console
+  console.error(
+    "[supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY. " +
+    "Vite inlines these at BUILD time — make sure they are present when you run `vite build` " +
+    "(e.g. pass them as Docker --build-arg, not just runtime env). " +
+    "App will render but DB calls will fail."
+  );
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
-  }
-});
+export const supabase = createClient<Database>(
+  SUPABASE_URL ?? "https://placeholder.supabase.co",
+  SUPABASE_PUBLISHABLE_KEY ?? "placeholder-anon-key",
+  {
+    auth: {
+      storage: typeof window !== "undefined" ? window.localStorage : undefined,
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  },
+);
