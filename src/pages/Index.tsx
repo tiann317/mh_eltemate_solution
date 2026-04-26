@@ -9,6 +9,7 @@ import { Screen3 } from "@/components/Screen3";
 import { Screen35 } from "@/components/Screen35";
 import { ScreenReview } from "@/components/ScreenReview";
 import { Screen4 } from "@/components/Screen4";
+import { DevJumpBar, fakeIntake } from "@/components/DevJumpBar";
 import { supabase } from "@/integrations/supabase/client";
 import {
   initialState, FormState, fmtTimestamp,
