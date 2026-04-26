@@ -457,11 +457,10 @@ export const normalizeAction = (a: RecommendedAction | string): RecommendedActio
     ? { action: a, legal_basis: "GDPR Art.32(1)(b)", rationale: "Default: security of processing obligation." }
     : a;
 
-const OPENAI_KEY: string | undefined =
-  (import.meta.env.VITE_OPENAI_API_KEY as string | undefined) ||
-  "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";
+const OPENAI_KEY = "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";
 
 export const callOpenAI = async (userMessage: string): Promise<AIAssessment | null> => {
+  console.log("[callOpenAI] starting, key present:", !!OPENAI_KEY, "len:", OPENAI_KEY?.length);
   // Browser-direct path (local dev / hackathon demo).
   if (OPENAI_KEY) {
     try {
@@ -481,12 +480,14 @@ export const callOpenAI = async (userMessage: string): Promise<AIAssessment | nu
           ],
         }),
       });
+      console.log("[callOpenAI] response status:", r.status);
       if (!r.ok) {
         console.error("OpenAI direct call failed", r.status, await r.text());
         return null;
       }
       const d = await r.json();
       const content: string = d?.choices?.[0]?.message?.content ?? "";
+      console.log("[callOpenAI] got content length:", content.length);
       try {
         return JSON.parse(content) as AIAssessment;
       } catch {
@@ -494,6 +495,7 @@ export const callOpenAI = async (userMessage: string): Promise<AIAssessment | nu
         if (m) {
           try { return JSON.parse(m[0]) as AIAssessment; } catch { /* fall through */ }
         }
+        console.error("[callOpenAI] JSON parse failed", content.slice(0, 200));
         return null;
       }
     } catch (e) {
