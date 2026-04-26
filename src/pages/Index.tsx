@@ -11,7 +11,7 @@ import { ScreenReview } from "@/components/ScreenReview";
 import { Screen4 } from "@/components/Screen4";
 import { DevJumpBar } from "@/components/DevJumpBar";
 import { sampleFormState } from "@/lib/sampleData";
-import { supabase } from "@/integrations/supabase/client";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import {
   initialState, FormState, fmtTimestamp,
   getLDAToken, queryLDA, LDA_PROMPTS, LDAResult,
@@ -220,6 +220,14 @@ const Index = () => {
 
 
     // Persist incident + audit log to database
+    if (!isSupabaseConfigured) {
+      log("Dashboard persistence skipped — Supabase build env vars are not configured");
+      log("Assessment displayed to user");
+      setLoading(false);
+      setStep(4);
+      return;
+    }
+
     try {
       const finalLog = [...auditLog, `[${fmtTimestamp()}] — Assessment displayed to user`];
       const aiResult = ai;
