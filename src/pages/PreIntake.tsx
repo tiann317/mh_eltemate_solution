@@ -83,8 +83,8 @@ const PreIntake = () => {
       {helper && <div style={{ fontSize: 12, color: "#475569", marginBottom: 8 }}>{helper}</div>}
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
         {[
-          { v: "yes", l: "Yes, confidently" },
-          { v: "unsure", l: "I'm not sure" },
+          { v: "yes", l: "Yes" },
+          { v: "unsure", l: "Not sure" },
           { v: "no", l: "No" },
         ].map(o => (
           <label key={o.v} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, color: "#0f172a", cursor: "pointer" }}>
