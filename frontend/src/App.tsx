@@ -3,13 +3,13 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
-import Dashboard from "./pages/Dashboard.tsx";
-import IncidentDetail from "./pages/IncidentDetail.tsx";
-import PreIntake from "./pages/PreIntake.tsx";
-import Recount from "./pages/Recount.tsx";
-import StaffDirectory from "./pages/StaffDirectory.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import Index from "./views/Index.tsx";
+import Dashboard from "./views/Dashboard.tsx";
+import IncidentDetail from "./views/IncidentDetail.tsx";
+import PreIntake from "./views/PreIntake.tsx";
+import Recount from "./views/Recount.tsx";
+import StaffDirectory from "./views/StaffDirectory.tsx";
+import NotFound from "./views/NotFound.tsx";
 
 const queryClient = new QueryClient();
 
