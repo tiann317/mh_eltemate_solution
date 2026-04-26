@@ -138,15 +138,15 @@ const PreIntake = () => {
               </label>
               <label style={{ fontSize: 13, color: "#0f172a" }}>
                 Job title
-                <input style={fieldStyle} value={form.reporter_title} onChange={(e) => set("reporter_title", e.target.value)} placeholder="e.g. CISO, Accountant, Marketing Lead" />
+                <input style={fieldStyle} value={form.reporter_title} onChange={(e) => set("reporter_title", e.target.value)} placeholder="e.g. Head of Security, Accountant, Marketing Lead" />
               </label>
               <label style={{ fontSize: 13, color: "#0f172a" }}>
-                Department
+                Team or department
                 <input style={fieldStyle} value={form.reporter_department} onChange={(e) => set("reporter_department", e.target.value)} placeholder="e.g. Security, Finance, HR" />
               </label>
               <label style={{ fontSize: 13, color: "#0f172a" }}>
-                Role / function
-                <input style={fieldStyle} value={form.reporter_role} onChange={(e) => set("reporter_role", e.target.value)} placeholder="e.g. Incident response lead, end user" />
+                What are you doing on this incident?
+                <input style={fieldStyle} value={form.reporter_role} onChange={(e) => set("reporter_role", e.target.value)} placeholder="e.g. I'm leading the response, I noticed something odd, I was asked to report it" />
               </label>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <label style={{ fontSize: 13, color: "#0f172a" }}>
