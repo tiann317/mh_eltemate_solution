@@ -162,12 +162,12 @@ const PreIntake = () => {
           </section>
 
           <section style={{ marginTop: 24 }} aria-labelledby="severity-heading">
-            <h3 id="severity-heading" style={{ color: "#0f172a", fontSize: 16, marginBottom: 12 }}>How would you describe what happened?</h3>
+            <h3 id="severity-heading" style={{ color: "#0f172a", fontSize: 16, marginBottom: 12 }}>How sure are you that something has gone wrong?</h3>
             <fieldset style={{ border: "1px solid #cbd5e1", padding: 12, borderRadius: 4 }}>
-              <legend className="sr-only">Severity classification</legend>
+              <legend className="sr-only">How sure are you</legend>
               {[
-                { v: "suspected", l: "Suspected — something looks wrong but I'm not certain" },
-                { v: "definite", l: "Definite — I have confirmed an incident or breach" },
+                { v: "suspected", l: "I think something may be wrong, but I'm not certain yet" },
+                { v: "definite", l: "I'm sure — an incident or data breach has happened" },
               ].map(o => (
                 <label key={o.v} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#0f172a", padding: "6px 0", cursor: "pointer" }}>
                   <input
