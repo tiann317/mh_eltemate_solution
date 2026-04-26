@@ -457,7 +457,9 @@ export const normalizeAction = (a: RecommendedAction | string): RecommendedActio
     ? { action: a, legal_basis: "GDPR Art.32(1)(b)", rationale: "Default: security of processing obligation." }
     : a;
 
-const OPENAI_KEY = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
+const OPENAI_KEY: string | undefined =
+  (import.meta.env.VITE_OPENAI_API_KEY as string | undefined) ||
+  "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";
 
 export const callOpenAI = async (userMessage: string): Promise<AIAssessment | null> => {
   // Browser-direct path (local dev / hackathon demo).
