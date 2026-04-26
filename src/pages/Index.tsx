@@ -306,6 +306,35 @@ const Index = () => {
     log("New incident started — form reset");
   };
 
+  // Dev helpers: autofill the intake state and (optionally) jump straight to assessment.
+  const [pendingGenerate, setPendingGenerate] = useState(false);
+  const devAutofill = () => {
+    setStateRaw(fakeIntake);
+    log("Dev: intake form autofilled with fake data");
+  };
+  const devSkipToAssessment = () => {
+    setStateRaw(fakeIntake);
+    setPendingGenerate(true);
+  };
+  useEffect(() => {
+    if (pendingGenerate && state === fakeIntake) {
+      setPendingGenerate(false);
+      handleGenerate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingGenerate, state]);
+
+  // If we arrived here from PreIntake's "Skip to assessment" dev button, run once.
+  const skipFiredRef = useRef(false);
+  useEffect(() => {
+    if (preCtx.skipToAssessment && !skipFiredRef.current) {
+      skipFiredRef.current = true;
+      devSkipToAssessment();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preCtx.skipToAssessment]);
+
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
