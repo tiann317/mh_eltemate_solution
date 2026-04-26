@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
     const upstreamUrl = useOpenAI
       ? "https://api.openai.com/v1/chat/completions"
       : "https://ai.gateway.lovable.dev/v1/chat/completions";
-    const upstreamModel = useOpenAI ? "gpt-4o-mini" : "google/gemini-2.5-flash";
+    const upstreamModel = useOpenAI ? "gpt-5.5" : "google/gemini-2.5-flash";
     const upstreamAuth = useOpenAI ? openaiKey! : lovableKey!;
     const provider = useOpenAI ? "openai" : "lovable-ai";
     console.log(`assess-breach using provider=${provider} model=${upstreamModel}`);
@@ -143,7 +143,7 @@ Deno.serve(async (req) => {
           JSON.stringify({
             error:
               provider === "openai"
-                ? "OpenAI rejected the API key. Verify OPENAI_API_KEY in backend secrets is valid and has access to gpt-4o-mini."
+                ? "OpenAI rejected the API key. Verify OPENAI_API_KEY in backend secrets is valid and has access to gpt-5.5."
                 : "AI gateway rejected the request (auth).",
           }),
           { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
