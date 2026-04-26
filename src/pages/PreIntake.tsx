@@ -106,14 +106,24 @@ const PreIntake = () => {
       <main id="main" className="flex-1" style={{ padding: 32 }}>
         <div className="mx-auto" style={{ maxWidth: 760 }}>
           <p style={{ color: "#1a56db", fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 600 }}>
-            Step 0 — Pre-intake
+            Before we start
           </p>
           <h2 style={{ color: "#0f172a", fontSize: 26, fontWeight: 400, letterSpacing: "0.05em", marginTop: 6 }}>
-            Tell us a little about you first
+            Let's start with a few details about you
           </h2>
           <p style={{ color: "#475569", fontSize: 14, marginTop: 8, lineHeight: 1.6 }}>
-            We use this to decide whether to ask you the full technical intake
-            or to keep things in plain language. There are no wrong answers.
+            Reporting an incident can feel stressful — thank you for speaking up.
+            These few questions help us match you with the right next step:
+            either a short plain-language form, or the full technical intake if
+            you're already on the response team. There are no wrong answers, and
+            you can change paths at any point.
+          </p>
+          <p style={{ color: "#475569", fontSize: 13, marginTop: 8, lineHeight: 1.6 }}>
+            <strong style={{ color: "#0f172a" }}>What we do with your answers.</strong>{" "}
+            We use them only to handle this incident and to keep an audit record,
+            as required by data-protection law. Your details are visible to your
+            organisation's response team and are not shared outside it without
+            your knowledge.
           </p>
 
           <div style={{ marginTop: 16 }}><LegalDisclaimer /></div>
