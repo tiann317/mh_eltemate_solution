@@ -6,6 +6,8 @@ import {
   buildPrioritizedPlan,
 } from "@/lib/aegis";
 import PrioritizedActionPlan from "@/components/PrioritizedActionPlan";
+import { EscalateButton } from "@/components/EscalateButton";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
   state: FormState;
@@ -16,6 +18,8 @@ interface Props {
   ai: AIAssessment | null;
   aiError: boolean;
   auditLog: string[];
+  incidentId?: string | null;
+  preIntakeId?: string | null;
   onBack: () => void;
   onRestart: () => void;
 }
@@ -350,8 +354,33 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 export const Screen4 = ({
   state, ldaGdpr, ldaNis2, ldaDora, ldaConnected, ai, aiError, auditLog,
-  onBack, onRestart,
+
+  incidentId, preIntakeId, onBack, onRestart,
+
 }: Props) => {
+  // Look up the responsible person (if any) chosen at pre-intake.
+  const [defaultStaffId, setDefaultStaffId] = useState<string>("");
+  useEffect(() => {
+    (async () => {
+      if (incidentId) {
+        const { data } = await supabase
+          .from("incidents")
+          .select("responsible_staff_id")
+          .eq("id", incidentId)
+          .maybeSingle();
+        if (data?.responsible_staff_id) { setDefaultStaffId(data.responsible_staff_id); return; }
+      }
+      if (preIntakeId) {
+        const { data } = await supabase
+          .from("pre_intakes")
+          .select("responsible_staff_id")
+          .eq("id", preIntakeId)
+          .maybeSingle();
+        if (data?.responsible_staff_id) setDefaultStaffId(data.responsible_staff_id);
+      }
+    })();
+  }, [incidentId, preIntakeId]);
+
   const verdict = computeVerdict(state);
   const clocks = buildClocks(state);
   const dpaName = state.jurisdiction ? DPA_MAP[state.jurisdiction] : "your lead supervisory authority";
@@ -677,6 +706,21 @@ export const Screen4 = ({
           )}
         </div>
       </div>
+
+      {(incidentId || preIntakeId) && (
+        <div className="mt-8">
+          <EscalateButton
+            source={incidentId ? "incident" : "pre_intake"}
+            incidentId={incidentId ?? undefined}
+            preIntakeId={preIntakeId ?? undefined}
+            staffId={defaultStaffId || undefined}
+            onStaffIdChange={setDefaultStaffId}
+            showPicker
+            theme="dark"
+            label="Escalate to responsible person"
+          />
+        </div>
+      )}
 
       <div className="flex gap-3 flex-col sm:flex-row mt-10">
         <button className="aegis-btn-secondary" onClick={onBack}>← Back to legal context</button>

@@ -9,9 +9,7 @@ import { Screen3 } from "@/components/Screen3";
 import { Screen35 } from "@/components/Screen35";
 import { ScreenReview } from "@/components/ScreenReview";
 import { Screen4 } from "@/components/Screen4";
-import { DevJumpBar } from "@/components/DevJumpBar";
-import { sampleFormState } from "@/lib/sampleData";
-import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import {
   initialState, FormState, fmtTimestamp,
   getLDAToken, queryLDA, LDA_PROMPTS, LDAResult,
@@ -31,14 +29,16 @@ const Index = () => {
   const [errors, setErrors] = useState<StepErrors>({});
 
   // Guarded step transition: validates the step the user is leaving before advancing.
-  const goNext = (from: 1 | 2 | 3 | 35, to: number, after?: () => void) => {
-    const v = validateStep(from, state);
+  const goNext = (from: 1 | 2 | 3 | 35, to: number, draftState?: FormState, after?: () => void) => {
+    const stateToValidate = draftState ?? state;
+    const v = validateStep(from, stateToValidate);
     if (!v.ok) {
       setErrors(v.errors);
       toast.error(v.firstMessage || "Please complete the highlighted fields before continuing.");
       log(`Validation blocked step ${from} → ${to}: ${Object.keys(v.errors).length} field(s) invalid`);
       return;
     }
+    if (draftState && draftState !== state) setStateRaw(draftState);
     setErrors({});
     setStep(to);
     after?.();
@@ -58,6 +58,7 @@ const Index = () => {
 
   // audit log
   const [auditLog, setAuditLog] = useState<string[]>([]);
+  const [savedIncidentId, setSavedIncidentId] = useState<string | null>(null);
   const log = (msg: string) =>
     setAuditLog(prev => [...prev, `[${fmtTimestamp()}] — ${msg}`]);
 
@@ -220,14 +221,6 @@ const Index = () => {
 
 
     // Persist incident + audit log to database
-    if (!isSupabaseConfigured) {
-      log("Dashboard persistence skipped — Supabase build env vars are not configured");
-      log("Assessment displayed to user");
-      setLoading(false);
-      setStep(4);
-      return;
-    }
-
     try {
       const finalLog = [...auditLog, `[${fmtTimestamp()}] — Assessment displayed to user`];
       const aiResult = ai;
@@ -255,6 +248,7 @@ const Index = () => {
         .select("id")
         .single();
       if (!insErr && inserted) {
+        setSavedIncidentId(inserted.id);
         if (preCtx.preIntakeId) {
           await supabase.from("pre_intakes").update({ incident_id: inserted.id }).eq("id", preCtx.preIntakeId);
         }
@@ -314,25 +308,6 @@ const Index = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <DevJumpBar
-        current={step}
-        onJump={(s) => {
-          setErrors({});
-          setStep(s);
-          log(`Dev jump → step ${s}`);
-        }}
-        onFillSample={() => {
-          setStateRaw(sampleFormState);
-          setErrors({});
-          log("Dev: form auto-filled with sample data");
-          toast.success("Sample data loaded — jump to Review or Result");
-        }}
-        onClear={() => {
-          setStateRaw(initialState);
-          setErrors({});
-          log("Dev: form cleared");
-        }}
-      />
       <Stepper current={step === 35 ? 4 : step === 38 ? 5 : step >= 4 ? 6 : step} />
       <main className="flex-1">
         {loading ? (
@@ -358,7 +333,7 @@ const Index = () => {
           </div>
         ) : (
           <>
-            {step === 1 && <Screen1 state={state} setState={setState} errors={errors} onNext={() => goNext(1, 2)} />}
+            {step === 1 && <Screen1 state={state} setState={setState} errors={errors} onNext={(draft) => goNext(1, 2, draft)} />}
             {step === 2 && <Screen2 state={state} setState={setState} errors={errors} onBack={() => { setErrors({}); setStep(1); }} onNext={() => goNext(2, 3)} />}
             {step === 3 && (
               <Screen3
@@ -397,6 +372,8 @@ const Index = () => {
                 ai={ai}
                 aiError={aiError}
                 auditLog={auditLog}
+                incidentId={savedIncidentId}
+                preIntakeId={preCtx.preIntakeId}
                 onBack={() => setStep(35)}
                 onRestart={restart}
               />

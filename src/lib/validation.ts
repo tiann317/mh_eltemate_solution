@@ -40,10 +40,8 @@ export const buildStep1Schema = (s: FormState) =>
         ["ransomware", "unauthorised-access", "accidental-disclosure", "insider-threat", "ot-ics", "lost-device", "other"],
         { errorMap: () => ({ message: "Select an incident type" }) },
       ),
-      systemsAffected: requiredString(500, "Systems affected"),
-      ongoingStatus: z.enum(["yes", "partially", "no", "unknown"], {
-        errorMap: () => ({ message: "Select the containment status" }),
-      }),
+      systemsAffected: trimmedString(500, "Systems affected"),
+      ongoingStatus: z.string(),
       backupsAvailable: z.string(),
       deviceEncrypted: z.string(),
       exfiltrationConfirmed: z.string(),

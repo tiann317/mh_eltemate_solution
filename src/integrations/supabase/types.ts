@@ -128,6 +128,9 @@ export type Database = {
           outstanding_actions_count: number
           reporter_literacy: string | null
           reporter_pre_intake_id: string | null
+          responsible_staff_email: string | null
+          responsible_staff_id: string | null
+          responsible_staff_name: string | null
           risk_rating: string | null
           sector: string | null
           severity_classification: string | null
@@ -153,6 +156,9 @@ export type Database = {
           outstanding_actions_count?: number
           reporter_literacy?: string | null
           reporter_pre_intake_id?: string | null
+          responsible_staff_email?: string | null
+          responsible_staff_id?: string | null
+          responsible_staff_name?: string | null
           risk_rating?: string | null
           sector?: string | null
           severity_classification?: string | null
@@ -178,6 +184,9 @@ export type Database = {
           outstanding_actions_count?: number
           reporter_literacy?: string | null
           reporter_pre_intake_id?: string | null
+          responsible_staff_email?: string | null
+          responsible_staff_id?: string | null
+          responsible_staff_name?: string | null
           risk_rating?: string | null
           sector?: string | null
           severity_classification?: string | null
@@ -302,6 +311,7 @@ export type Database = {
           reporter_name: string
           reporter_role: string | null
           reporter_title: string | null
+          responsible_staff_id: string | null
           self_check_1: string | null
           self_check_2: string | null
           self_check_3: string | null
@@ -322,6 +332,7 @@ export type Database = {
           reporter_name: string
           reporter_role?: string | null
           reporter_title?: string | null
+          responsible_staff_id?: string | null
           self_check_1?: string | null
           self_check_2?: string | null
           self_check_3?: string | null
@@ -342,6 +353,7 @@ export type Database = {
           reporter_name?: string
           reporter_role?: string | null
           reporter_title?: string | null
+          responsible_staff_id?: string | null
           self_check_1?: string | null
           self_check_2?: string | null
           self_check_3?: string | null

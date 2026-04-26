@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Header, Footer } from "@/components/Chrome";
 import { LegalDisclaimer } from "@/components/LegalDisclaimer";
+import { EscalateButton } from "@/components/EscalateButton";
 import { supabase } from "@/integrations/supabase/client";
 import { classifyLiteracy } from "@/lib/literacy";
 
@@ -28,20 +29,40 @@ const PreIntake = () => {
     self_check_2: "",
     self_check_3: "",
     severity_classification: "suspected" as "suspected" | "definite",
+    responsible_staff_id: "",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [savedPreIntakeId, setSavedPreIntakeId] = useState<string | null>(null);
+  const [staff, setStaff] = useState<{ id: string; name: string; email: string | null }[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("staff_members")
+        .select("id, name, email")
+        .eq("available", true)
+        .order("name");
+      setStaff(data ?? []);
+    })();
+  }, []);
 
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
     setForm(p => ({ ...p, [k]: v }));
 
-  const submit = async () => {
-    if (!form.reporter_name.trim()) { toast.error("Please enter your name."); return; }
-    if (!form.contact_email.trim()) { toast.error("Please enter a contact email."); return; }
+  const validate = () => {
+    if (!form.reporter_name.trim()) { toast.error("Please enter your name."); return false; }
+    if (!form.contact_email.trim()) { toast.error("Please enter a contact email."); return false; }
     if (!form.self_check_1 || !form.self_check_2 || !form.self_check_3) {
       toast.error("Please answer all three self-check questions.");
-      return;
+      return false;
     }
-    setSubmitting(true);
+    return true;
+  };
+
+  const savePreIntake = async (): Promise<{ id: string; literacy: string } | null> => {
+    if (savedPreIntakeId) {
+      return { id: savedPreIntakeId, literacy: "qualified" };
+    }
     const literacy = classifyLiteracy({
       title: form.reporter_title,
       role: form.reporter_role,
@@ -50,23 +71,37 @@ const PreIntake = () => {
       selfCheck2: form.self_check_2,
       selfCheck3: form.self_check_3,
     });
-
     const { data, error } = await supabase
       .from("pre_intakes")
-      .insert([{ ...form, literacy }])
+      .insert([{ ...form, literacy, responsible_staff_id: form.responsible_staff_id || null }])
       .select("id")
       .single();
-    setSubmitting(false);
     if (error || !data) {
       toast.error("Could not save pre-intake. Please try again.");
-      return;
+      return null;
     }
-    if (literacy === "qualified") {
-      // Qualified reporter → standard intake. Pass pre-intake id through state.
-      navigate("/intake", { state: { preIntakeId: data.id, severity: form.severity_classification } });
+    setSavedPreIntakeId(data.id);
+    return { id: data.id, literacy };
+  };
+
+  const submit = async () => {
+    if (!validate()) return;
+    setSubmitting(true);
+    const saved = await savePreIntake();
+    setSubmitting(false);
+    if (!saved) return;
+    if (saved.literacy === "qualified") {
+      navigate("/intake", { state: { preIntakeId: saved.id, severity: form.severity_classification } });
     } else {
-      navigate(`/recount/${data.id}`);
+      navigate(`/recount/${saved.id}`);
     }
+  };
+
+  // Saves (if needed) without navigating, so the EscalateButton can fire.
+  const ensureSavedForEscalation = async (): Promise<string | null> => {
+    if (!validate()) return null;
+    const saved = await savePreIntake();
+    return saved?.id ?? null;
   };
 
   // WCAG: labels tied to inputs, error/help text via aria-describedby, focus styles inherited from index.css.
@@ -214,6 +249,29 @@ const PreIntake = () => {
             
           </section>
 
+          <section style={{ marginTop: 24 }} aria-labelledby="resp-heading">
+            <h3 id="resp-heading" style={{ color: "#0f172a", fontSize: 16, marginBottom: 4 }}>
+              Who should handle this report?
+            </h3>
+            <p style={{ fontSize: 13, color: "#475569", marginBottom: 12, lineHeight: 1.6 }}>
+              Pick the colleague best placed to take this forward (e.g. your
+              security lead, DPO, or line manager). They'll be recorded as the
+              responsible person and notified by email when you escalate.
+            </p>
+            <select
+              style={fieldStyle}
+              value={form.responsible_staff_id}
+              onChange={(e) => set("responsible_staff_id", e.target.value)}
+            >
+              <option value="">— Select a colleague (optional) —</option>
+              {staff.map(s => (
+                <option key={s.id} value={s.id}>
+                  {s.name}{s.email ? ` (${s.email})` : ""}
+                </option>
+              ))}
+            </select>
+          </section>
+
           <div style={{ display: "flex", gap: 12, marginTop: 24, flexWrap: "wrap" }}>
             <button
               type="button"
@@ -234,14 +292,98 @@ const PreIntake = () => {
             </Link>
           </div>
           <p style={{ color: "#475569", fontSize: 12, marginTop: 12, lineHeight: 1.6 }}>
-            Your answers are stored for audit purposes. The classification is a
-            best-effort guide — you can always switch to the other path on the
-            next screen.
+            We keep a record of your answers so the response can be properly
+            documented, as data-protection law requires. The path we suggest
+            next is just a starting point — you can switch at any time.
           </p>
+
+          <PreIntakeEscalation
+            staffId={form.responsible_staff_id}
+            preIntakeId={savedPreIntakeId}
+            reporterName={form.reporter_name}
+            reporterEmail={form.contact_email}
+            ensureSaved={ensureSavedForEscalation}
+          />
         </div>
       </main>
       <Footer />
     </div>
+  );
+};
+
+/**
+ * Wraps EscalateButton so it can save the pre-intake first if the user
+ * hasn't yet clicked Continue.
+ */
+const PreIntakeEscalation = ({
+  staffId, preIntakeId, reporterName, reporterEmail, ensureSaved,
+}: {
+  staffId: string;
+  preIntakeId: string | null;
+  reporterName: string;
+  reporterEmail: string;
+  ensureSaved: () => Promise<string | null>;
+}) => {
+  const [resolvedId, setResolvedId] = useState<string | null>(preIntakeId);
+  useEffect(() => { if (preIntakeId) setResolvedId(preIntakeId); }, [preIntakeId]);
+
+  const [pending, setPending] = useState(false);
+  const handlePreSave = async () => {
+    if (resolvedId) return;
+    setPending(true);
+    const id = await ensureSaved();
+    setPending(false);
+    if (id) setResolvedId(id);
+  };
+
+  if (!resolvedId) {
+    return (
+      <div style={{ marginTop: 24 }}>
+        <div style={{ padding: 16, border: "1px solid #cbd5e1", borderRadius: 4, background: "#f8fafc" }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", marginBottom: 4 }}>
+            Escalate to responsible person
+          </div>
+          <div style={{ fontSize: 12, color: "#475569", marginBottom: 12, lineHeight: 1.5 }}>
+            Save your details first, then we'll notify the colleague you picked
+            above by email so they can take this forward immediately.
+          </div>
+          <button
+            type="button"
+            onClick={handlePreSave}
+            disabled={pending || !staffId}
+            style={{
+              background: staffId ? "#b91c1c" : "#cbd5e1",
+              color: staffId ? "#ffffff" : "#64748b",
+              border: "none",
+              padding: "10px 18px",
+              borderRadius: 4,
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: pending ? "wait" : (staffId ? "pointer" : "not-allowed"),
+            }}
+          >
+            {pending ? "Saving…" : "Save & escalate now"}
+          </button>
+          {!staffId && (
+            <div style={{ fontSize: 12, color: "#475569", marginTop: 8 }}>
+              Pick a responsible person above to enable escalation.
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <EscalateButton
+      source="pre_intake"
+      preIntakeId={resolvedId}
+      staffId={staffId}
+      showPicker={!staffId}
+      reporterName={reporterName}
+      reporterEmail={reporterEmail}
+      label="Escalate to responsible person"
+    />
   );
 };
 
