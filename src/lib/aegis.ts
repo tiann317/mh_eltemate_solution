@@ -272,7 +272,7 @@ export const hasAnyPersonalData = (cats: DataCategory[]) =>
 // 2. Edge-function proxy: if those vars are missing, fall back to the
 //    Supabase edge function `query-lda` which holds creds server-side.
 
-import { supabase } from "@/integrations/supabase/client";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 
 const LDA_CLIENT_ID = import.meta.env.VITE_LDA_CLIENT_ID as string | undefined;
 const LDA_CLIENT_SECRET = import.meta.env.VITE_LDA_CLIENT_SECRET as string | undefined;
@@ -304,6 +304,7 @@ const fetchLDATokenDirect = async (): Promise<string | null> => {
 
 export const getLDAToken = async (): Promise<string | null> => {
   if (LDA_DIRECT) return fetchLDATokenDirect();
+  if (!isSupabaseConfigured) return null;
   try {
     const { data, error } = await supabase.functions.invoke("query-lda", {
       body: { prompt: "ping" },
@@ -353,6 +354,7 @@ export const queryLDA = async (_token: string, prompt: string): Promise<LDAResul
       return { answer: "", sources: [] };
     }
   }
+  if (!isSupabaseConfigured) return { answer: "", sources: [], skipped: "Supabase is not configured" };
   try {
     const { data, error } = await supabase.functions.invoke("query-lda", {
       body: { prompt },
@@ -473,7 +475,6 @@ export const callOpenAI = async (userMessage: string): Promise<AIAssessment | nu
         body: JSON.stringify({
           model: "gpt-5.5",
           response_format: { type: "json_object" },
-          temperature: 0.2,
           messages: [
             { role: "system", content: OPENAI_SYSTEM_PROMPT },
             { role: "user", content: userMessage },
