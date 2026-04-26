@@ -10,6 +10,8 @@
 interface Props {
   current: number;
   onJump: (step: number) => void;
+  onFillSample?: () => void;
+  onClear?: () => void;
 }
 
 const STEPS: { step: number; label: string }[] = [
@@ -21,7 +23,7 @@ const STEPS: { step: number; label: string }[] = [
   { step: 4, label: "Result" },
 ];
 
-export const DevJumpBar = ({ current, onJump }: Props) => {
+export const DevJumpBar = ({ current, onJump, onFillSample, onClear }: Props) => {
   if (import.meta.env.PROD) return null;
   return (
     <div
@@ -43,8 +45,26 @@ export const DevJumpBar = ({ current, onJump }: Props) => {
           {s.label}
         </button>
       ))}
+      {onFillSample && (
+        <button
+          type="button"
+          onClick={onFillSample}
+          className="ml-3 mr-2 rounded border border-emerald-600 bg-emerald-100 px-2 py-0.5 font-semibold text-emerald-900 hover:bg-emerald-200"
+        >
+          ⚡ Fill sample data
+        </button>
+      )}
+      {onClear && (
+        <button
+          type="button"
+          onClick={onClear}
+          className="mr-2 rounded border border-slate-400 bg-white px-2 py-0.5 text-slate-700 hover:bg-slate-100"
+        >
+          Clear
+        </button>
+      )}
       <span className="ml-2 text-amber-700">
-        (no auto-fill — jumps with empty form state)
+        (sample data fills all 5 steps so you can jump straight to Review)
       </span>
     </div>
   );
