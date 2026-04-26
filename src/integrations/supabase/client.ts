@@ -4,8 +4,9 @@ import type { Database } from './types';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
 
-if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+if (!isSupabaseConfigured) {
   // Don't throw at module load — that would blank the whole app.
   // Log a clear, actionable error and fall back to a harmless placeholder
   // so the UI still renders. Network calls will fail gracefully.
