@@ -17,33 +17,12 @@ const mimeTypes = {
 };
 
 async function readStatic(pathname) {
-  const safePath = normalize(pathname).replace(/^\.\.(\/|\\|$)/, "");
-  const filePath = join(distDir, safePath === "/" ? "index.html" : safePath);
-  return readFile(filePath);
+  const safe = normalize(pathname).replace(/^\.\.(\/|\\|$)/, "");
+  return readFile(join(distDir, safe === "/" ? "index.html" : safe));
 }
 
 async function readIndex() {
   return readFile(join(distDir, "index.html"));
-}
-
-async function getLDAToken() {
-  if (!process.env.LDA_CLIENT_ID || !process.env.LDA_CLIENT_SECRET) {
-    return null;
-  }
-
-  const response = await fetch("https://online.otto-schmidt.de/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "authorization_code",
-      client_id: process.env.LDA_CLIENT_ID,
-      client_secret: process.env.LDA_CLIENT_SECRET,
-    }),
-  });
-
-  if (!response.ok) return null;
-  const data = await response.json();
-  return typeof data.access_token === "string" ? data.access_token : null;
 }
 
 createServer(async (request, response) => {
@@ -52,18 +31,6 @@ createServer(async (request, response) => {
   if (url.pathname === "/healthz") {
     response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     response.end(JSON.stringify({ ok: true }));
-    return;
-  }
-
-  if (url.pathname === "/api/lda-token") {
-    try {
-      const token = await getLDAToken();
-      response.writeHead(token ? 200 : 503, { "Content-Type": "application/json; charset=utf-8" });
-      response.end(JSON.stringify({ configured: Boolean(token) }));
-    } catch {
-      response.writeHead(503, { "Content-Type": "application/json; charset=utf-8" });
-      response.end(JSON.stringify({ configured: false }));
-    }
     return;
   }
 
