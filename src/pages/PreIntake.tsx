@@ -179,29 +179,39 @@ const PreIntake = () => {
                 </label>
               ))}
             </fieldset>
+            <p style={{ fontSize: 12, color: "#475569", marginTop: 8, lineHeight: 1.6 }}>
+              It is fine to report something you're not sure about. Spotting it
+              early is what matters — your response team will work out the rest.
+            </p>
           </section>
 
           <section style={{ marginTop: 24 }} aria-labelledby="checks-heading">
-            <h3 id="checks-heading" style={{ color: "#0f172a", fontSize: 16, marginBottom: 12 }}>Quick self-check (3 questions)</h3>
+            <h3 id="checks-heading" style={{ color: "#0f172a", fontSize: 16, marginBottom: 4 }}>Three quick questions</h3>
+            <p style={{ fontSize: 13, color: "#475569", marginBottom: 12, lineHeight: 1.6 }}>
+              These help us pick the right form for you. Answering "no" or "not
+              sure" is fine — it just means we'll keep the language plain.
+            </p>
             <RadioRow
               name="sc1"
-              label="Are you comfortable describing the technical systems involved?"
-              helper="e.g. servers, network segments, identity providers, applications."
+              label="Are you comfortable describing the IT systems involved?"
+              helper="For example: which application, server, or device this happened on."
               value={form.self_check_1}
               onChange={(v) => set("self_check_1", v)}
             />
             <RadioRow
               name="sc2"
-              label="Do you understand terms like 'data breach', 'controller / processor', 'GDPR Article 33'?"
+              label="Are you familiar with data-protection terms like 'personal data breach' or 'GDPR'?"
+              helper="No need to be an expert — just whether the wording feels familiar."
               value={form.self_check_2}
               onChange={(v) => set("self_check_2", v)}
             />
             <RadioRow
               name="sc3"
-              label="Have you been part of an incident response or security investigation before?"
+              label="Have you helped respond to a security incident before?"
               value={form.self_check_3}
               onChange={(v) => set("self_check_3", v)}
             />
+            
           </section>
 
           <div style={{ display: "flex", gap: 12, marginTop: 24, flexWrap: "wrap" }}>
