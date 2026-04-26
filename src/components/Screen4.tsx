@@ -354,7 +354,9 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 export const Screen4 = ({
   state, ldaGdpr, ldaNis2, ldaDora, ldaConnected, ai, aiError, auditLog,
+
   incidentId, preIntakeId, onBack, onRestart,
+
 }: Props) => {
   // Look up the responsible person (if any) chosen at pre-intake.
   const [defaultStaffId, setDefaultStaffId] = useState<string>("");

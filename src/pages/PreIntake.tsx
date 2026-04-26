@@ -246,6 +246,7 @@ const PreIntake = () => {
               value={form.self_check_3}
               onChange={(v) => set("self_check_3", v)}
             />
+            
           </section>
 
           <section style={{ marginTop: 24 }} aria-labelledby="resp-heading">
