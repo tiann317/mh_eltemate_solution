@@ -6,8 +6,6 @@ import {
   buildPrioritizedPlan,
 } from "@/lib/aegis";
 import PrioritizedActionPlan from "@/components/PrioritizedActionPlan";
-import { EscalateButton } from "@/components/EscalateButton";
-import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
   state: FormState;
@@ -18,8 +16,6 @@ interface Props {
   ai: AIAssessment | null;
   aiError: boolean;
   auditLog: string[];
-  incidentId?: string | null;
-  preIntakeId?: string | null;
   onBack: () => void;
   onRestart: () => void;
 }
