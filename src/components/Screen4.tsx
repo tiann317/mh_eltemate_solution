@@ -678,21 +678,6 @@ export const Screen4 = ({
         </div>
       </div>
 
-      {(incidentId || preIntakeId) && (
-        <div className="mt-8">
-          <EscalateButton
-            source={incidentId ? "incident" : "pre_intake"}
-            incidentId={incidentId ?? undefined}
-            preIntakeId={preIntakeId ?? undefined}
-            staffId={defaultStaffId || undefined}
-            onStaffIdChange={setDefaultStaffId}
-            showPicker
-            theme="dark"
-            label="Escalate to responsible person"
-          />
-        </div>
-      )}
-
       <div className="flex gap-3 flex-col sm:flex-row mt-10">
         <button className="aegis-btn-secondary" onClick={onBack}>← Back to legal context</button>
         <button className="aegis-btn-primary" onClick={onRestart}>Start a new incident</button>
