@@ -264,14 +264,46 @@ export const hasAnyDanger = (cats: DataCategory[]) =>
 export const hasAnyPersonalData = (cats: DataCategory[]) =>
   cats.length > 0 && !(cats.length === 1 && cats[0] === "unknown");
 
-// ---------- LDA API (proxied through edge function) ----------
+// ---------- LDA API ----------
+//
+// Two transport modes:
+// 1. Browser-direct: if VITE_LDA_CLIENT_ID + VITE_LDA_CLIENT_SECRET are set in
+//    the build, hit Otto Schmidt directly (used for local dev / hackathon demo).
+// 2. Edge-function proxy: if those vars are missing, fall back to the
+//    Supabase edge function `query-lda` which holds creds server-side.
 
 import { supabase } from "@/integrations/supabase/client";
 
-// Kept for backwards compatibility — token is now handled server-side.
-// Probe the edge function with a minimal request — if creds aren't configured
-// the function returns { skipped: "..." } and we treat LDA as unavailable.
+const LDA_CLIENT_ID = import.meta.env.VITE_LDA_CLIENT_ID as string | undefined;
+const LDA_CLIENT_SECRET = import.meta.env.VITE_LDA_CLIENT_SECRET as string | undefined;
+const LDA_DIRECT = !!(LDA_CLIENT_ID && LDA_CLIENT_SECRET);
+
+let _ldaTokenCache: { token: string; exp: number } | null = null;
+
+const fetchLDATokenDirect = async (): Promise<string | null> => {
+  if (_ldaTokenCache && _ldaTokenCache.exp > Date.now()) return _ldaTokenCache.token;
+  try {
+    const r = await fetch("https://online.otto-schmidt.de/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        client_id: LDA_CLIENT_ID!,
+        client_secret: LDA_CLIENT_SECRET!,
+      }),
+    });
+    if (!r.ok) return null;
+    const j = await r.json();
+    if (!j.access_token) return null;
+    _ldaTokenCache = { token: j.access_token, exp: Date.now() + 50 * 60 * 1000 };
+    return j.access_token;
+  } catch {
+    return null;
+  }
+};
+
 export const getLDAToken = async (): Promise<string | null> => {
+  if (LDA_DIRECT) return fetchLDATokenDirect();
   try {
     const { data, error } = await supabase.functions.invoke("query-lda", {
       body: { prompt: "ping" },
@@ -297,6 +329,30 @@ export interface LDAResult {
 }
 
 export const queryLDA = async (_token: string, prompt: string): Promise<LDAResult> => {
+  if (LDA_DIRECT) {
+    try {
+      const token = await fetchLDATokenDirect();
+      if (!token) return { answer: "", sources: [], skipped: "LDA token unavailable" };
+      const r = await fetch("https://otto-schmidt.legal-data-hub.com/api/qna", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          data_asset: "Beratermodul Datenschutzrecht",
+          mode: "attribution",
+          filter: [{}],
+          prompt,
+        }),
+      });
+      if (!r.ok) return { answer: "", sources: [] };
+      const d = await r.json();
+      return {
+        answer: d.answer ?? "",
+        sources: Array.isArray(d.sourcedocuments) ? d.sourcedocuments : [],
+      };
+    } catch {
+      return { answer: "", sources: [] };
+    }
+  }
   try {
     const { data, error } = await supabase.functions.invoke("query-lda", {
       body: { prompt },
@@ -401,7 +457,50 @@ export const normalizeAction = (a: RecommendedAction | string): RecommendedActio
     ? { action: a, legal_basis: "GDPR Art.32(1)(b)", rationale: "Default: security of processing obligation." }
     : a;
 
+const OPENAI_KEY = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
+
 export const callOpenAI = async (userMessage: string): Promise<AIAssessment | null> => {
+  // Browser-direct path (local dev / hackathon demo).
+  if (OPENAI_KEY) {
+    try {
+      const r = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OPENAI_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          response_format: { type: "json_object" },
+          temperature: 0.2,
+          messages: [
+            { role: "system", content: OPENAI_SYSTEM_PROMPT },
+            { role: "user", content: userMessage },
+          ],
+        }),
+      });
+      if (!r.ok) {
+        console.error("OpenAI direct call failed", r.status, await r.text());
+        return null;
+      }
+      const d = await r.json();
+      const content: string = d?.choices?.[0]?.message?.content ?? "";
+      try {
+        return JSON.parse(content) as AIAssessment;
+      } catch {
+        const m = content.match(/\{[\s\S]*\}/);
+        if (m) {
+          try { return JSON.parse(m[0]) as AIAssessment; } catch { /* fall through */ }
+        }
+        return null;
+      }
+    } catch (e) {
+      console.error("callOpenAI direct exception", e);
+      return null;
+    }
+  }
+
+  // Edge-function fallback.
   try {
     const { data, error } = await supabase.functions.invoke("assess-breach", {
       body: { userMessage },
