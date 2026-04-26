@@ -22,15 +22,17 @@ export const Screen3 = ({ state, setState, errors, onBack, onNext, loading }: Pr
   return (
     <div className="mx-auto" style={{ maxWidth: 760, padding: 32 }}>
       <ValidationBanner errors={errors} />
-      <div className="aegis-section-label mb-2">Step 3 of 5</div>
-      <h2 className="aegis-title mb-3">Organisation, Sector &amp; Jurisdiction</h2>
+      <div className="aegis-section-label mb-2">Step 3 of 5 · About your organisation</div>
+      <h2 className="aegis-title mb-3">A bit about your organisation</h2>
       <p className="aegis-helper mb-8">
-        Completed by: DPO or Legal. Determines which regulatory frameworks apply and which authorities must be notified.
+        Best filled in by your DPO or someone in Legal. Your answers help us
+        work out which rules apply and which authorities — if any — need to be
+        told.
       </p>
 
       <div className="aegis-card mb-6">
         <label className="aegis-label" htmlFor="sector">
-          Sector <span style={{ color: "#ff6b6b" }}>*</span>
+          What sector does your organisation work in? <span style={{ color: "#ff6b6b" }}>*</span>
         </label>
         <select
           id="sector"
@@ -39,7 +41,7 @@ export const Screen3 = ({ state, setState, errors, onBack, onNext, loading }: Pr
           onChange={e => update("sector", e.target.value as Sector)}
           required
         >
-          <option value="">(select...)</option>
+          <option value="">Choose the closest match…</option>
           {(Object.keys(SECTOR_LABELS) as Array<keyof typeof SECTOR_LABELS>).map(k => (
             <option key={k} value={k}>{SECTOR_LABELS[k]}</option>
           ))}
@@ -65,7 +67,7 @@ export const Screen3 = ({ state, setState, errors, onBack, onNext, loading }: Pr
 
       <div className="aegis-card mb-6">
         <label className="aegis-label" htmlFor="jurisdiction">
-          EU main establishment / lead supervisory authority <span style={{ color: "#ff6b6b" }}>*</span>
+          Where is your organisation mainly based in Europe? <span style={{ color: "#ff6b6b" }}>*</span>
         </label>
         <select
           id="jurisdiction"
@@ -74,13 +76,13 @@ export const Screen3 = ({ state, setState, errors, onBack, onNext, loading }: Pr
           onChange={e => update("jurisdiction", e.target.value as Jurisdiction)}
           required
         >
-          <option value="">(select...)</option>
+          <option value="">Choose a country…</option>
           {(Object.keys(DPA_MAP) as Array<keyof typeof DPA_MAP>).map(k => (
             <option key={k} value={k}>{DPA_MAP[k]}</option>
           ))}
         </select>
         <div className="aegis-field-helper">
-          Your lead DPA is determined by where your organisation has its main establishment in the EU. Source: DPO / Legal records of establishment.
+          We use this to work out which data-protection authority leads on the case. If you're unsure, pick the country where your headquarters or main EU office is.
         </div>
 
         {state.jurisdiction === "UK" && (
@@ -110,14 +112,14 @@ export const Screen3 = ({ state, setState, errors, onBack, onNext, loading }: Pr
       </div>
 
       <div className="aegis-card mb-6">
-        <label className="aegis-label" htmlFor="thirdparty">Third party involvement</label>
+        <label className="aegis-label" htmlFor="thirdparty">Was anyone outside your organisation involved?</label>
         <select
           id="thirdparty"
           className="aegis-select"
           value={state.thirdParty}
           onChange={e => update("thirdParty", e.target.value as ThirdParty)}
         >
-          <option value="">(select...)</option>
+          <option value="">Choose one…</option>
           {(Object.keys(THIRD_PARTY_LABELS) as Array<keyof typeof THIRD_PARTY_LABELS>).map(k => (
             <option key={k} value={k}>{THIRD_PARTY_LABELS[k]}</option>
           ))}
@@ -161,7 +163,7 @@ export const Screen3 = ({ state, setState, errors, onBack, onNext, loading }: Pr
           onClick={onNext}
           disabled={loading || !state.sector || !state.jurisdiction}
         >
-          Continue to legal context →
+          Next: legal context →
         </button>
       </div>
     </div>

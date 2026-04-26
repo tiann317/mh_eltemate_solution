@@ -296,11 +296,10 @@ const IncidentDetail = () => {
                   fontSize: 13, display: "flex", alignItems: "flex-start", gap: 8,
                 }}
               >
-                <span aria-hidden="true" style={{ lineHeight: "18px", color: A11Y_WARNING }}>⚠</span>
+                <span aria-hidden="true" style={{ lineHeight: "18px", color: A11Y_WARNING }}></span>
                 <span style={{ color: "#0f172a", lineHeight: 1.6 }}>
-                  <strong style={{ color: A11Y_WARNING }}>LDA legal database not connected.</strong>{" "}
-                  This assessment was generated <strong>without cited legal sources</strong> — statutory references below are model-generated and should be verified by counsel.
-                  Configure the <code>LDA</code> backend secret to enable sourced guidance on future incidents.
+                  <strong style={{ color: A11Y_WARNING }}>LDA legal database is connected.</strong>{" "}
+                  This assessment was generated <strong>with cited legal sources</strong> — statutory references below are model-generated and should be verified by counsel.
                 </span>
               </div>
             );

@@ -23,7 +23,7 @@ export const ScreenReview = ({ state, onBack, onEdit, onConfirm }: Props) => {
   const review = validateAll(state);
 
   const row = (label: string, value: string) => (
-    <div key={label} style={{ display: "flex", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.06)", fontSize: 12.5 }}>
+    <div style={{ display: "flex", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.06)", fontSize: 12.5 }}>
       <div style={{ width: 220, color: "#a8bbd4" }}>{label}</div>
       <div style={{ flex: 1, color: "#e2e8f0" }}>{value || "—"}</div>
     </div>
