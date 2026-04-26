@@ -83,8 +83,8 @@ const PreIntake = () => {
       {helper && <div style={{ fontSize: 12, color: "#475569", marginBottom: 8 }}>{helper}</div>}
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
         {[
-          { v: "yes", l: "Yes, confidently" },
-          { v: "unsure", l: "I'm not sure" },
+          { v: "yes", l: "Yes" },
+          { v: "unsure", l: "Not sure" },
           { v: "no", l: "No" },
         ].map(o => (
           <label key={o.v} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, color: "#0f172a", cursor: "pointer" }}>
@@ -106,14 +106,24 @@ const PreIntake = () => {
       <main id="main" className="flex-1" style={{ padding: 32 }}>
         <div className="mx-auto" style={{ maxWidth: 760 }}>
           <p style={{ color: "#1a56db", fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 600 }}>
-            Step 0 — Pre-intake
+            Before we start
           </p>
           <h2 style={{ color: "#0f172a", fontSize: 26, fontWeight: 400, letterSpacing: "0.05em", marginTop: 6 }}>
-            Tell us a little about you first
+            Let's start with a few details about you
           </h2>
           <p style={{ color: "#475569", fontSize: 14, marginTop: 8, lineHeight: 1.6 }}>
-            We use this to decide whether to ask you the full technical intake
-            or to keep things in plain language. There are no wrong answers.
+            Reporting an incident can feel stressful — thank you for speaking up.
+            These few questions help us match you with the right next step:
+            either a short plain-language form, or the full technical intake if
+            you're already on the response team. There are no wrong answers, and
+            you can change paths at any point.
+          </p>
+          <p style={{ color: "#475569", fontSize: 13, marginTop: 8, lineHeight: 1.6 }}>
+            <strong style={{ color: "#0f172a" }}>What we do with your answers.</strong>{" "}
+            We use them only to handle this incident and to keep an audit record,
+            as required by data-protection law. Your details are visible to your
+            organisation's response team and are not shared outside it without
+            your knowledge.
           </p>
 
           <div style={{ marginTop: 16 }}><LegalDisclaimer /></div>
@@ -128,15 +138,15 @@ const PreIntake = () => {
               </label>
               <label style={{ fontSize: 13, color: "#0f172a" }}>
                 Job title
-                <input style={fieldStyle} value={form.reporter_title} onChange={(e) => set("reporter_title", e.target.value)} placeholder="e.g. CISO, Accountant, Marketing Lead" />
+                <input style={fieldStyle} value={form.reporter_title} onChange={(e) => set("reporter_title", e.target.value)} placeholder="e.g. Head of Security, Accountant, Marketing Lead" />
               </label>
               <label style={{ fontSize: 13, color: "#0f172a" }}>
-                Department
+                Team or department
                 <input style={fieldStyle} value={form.reporter_department} onChange={(e) => set("reporter_department", e.target.value)} placeholder="e.g. Security, Finance, HR" />
               </label>
               <label style={{ fontSize: 13, color: "#0f172a" }}>
-                Role / function
-                <input style={fieldStyle} value={form.reporter_role} onChange={(e) => set("reporter_role", e.target.value)} placeholder="e.g. Incident response lead, end user" />
+                What are you doing on this incident?
+                <input style={fieldStyle} value={form.reporter_role} onChange={(e) => set("reporter_role", e.target.value)} placeholder="e.g. I'm leading the response, I noticed something odd, I was asked to report it" />
               </label>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <label style={{ fontSize: 13, color: "#0f172a" }}>
@@ -152,12 +162,12 @@ const PreIntake = () => {
           </section>
 
           <section style={{ marginTop: 24 }} aria-labelledby="severity-heading">
-            <h3 id="severity-heading" style={{ color: "#0f172a", fontSize: 16, marginBottom: 12 }}>How would you describe what happened?</h3>
+            <h3 id="severity-heading" style={{ color: "#0f172a", fontSize: 16, marginBottom: 12 }}>How sure are you that something has gone wrong?</h3>
             <fieldset style={{ border: "1px solid #cbd5e1", padding: 12, borderRadius: 4 }}>
-              <legend className="sr-only">Severity classification</legend>
+              <legend className="sr-only">How sure are you</legend>
               {[
-                { v: "suspected", l: "Suspected — something looks wrong but I'm not certain" },
-                { v: "definite", l: "Definite — I have confirmed an incident or breach" },
+                { v: "suspected", l: "I think something may be wrong, but I'm not certain yet" },
+                { v: "definite", l: "I'm sure — an incident or data breach has happened" },
               ].map(o => (
                 <label key={o.v} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#0f172a", padding: "6px 0", cursor: "pointer" }}>
                   <input
@@ -169,29 +179,39 @@ const PreIntake = () => {
                 </label>
               ))}
             </fieldset>
+            <p style={{ fontSize: 12, color: "#475569", marginTop: 8, lineHeight: 1.6 }}>
+              It is fine to report something you're not sure about. Spotting it
+              early is what matters — your response team will work out the rest.
+            </p>
           </section>
 
           <section style={{ marginTop: 24 }} aria-labelledby="checks-heading">
-            <h3 id="checks-heading" style={{ color: "#0f172a", fontSize: 16, marginBottom: 12 }}>Quick self-check (3 questions)</h3>
+            <h3 id="checks-heading" style={{ color: "#0f172a", fontSize: 16, marginBottom: 4 }}>Three quick questions</h3>
+            <p style={{ fontSize: 13, color: "#475569", marginBottom: 12, lineHeight: 1.6 }}>
+              These help us pick the right form for you. Answering "no" or "not
+              sure" is fine — it just means we'll keep the language plain.
+            </p>
             <RadioRow
               name="sc1"
-              label="Are you comfortable describing the technical systems involved?"
-              helper="e.g. servers, network segments, identity providers, applications."
+              label="Are you comfortable describing the IT systems involved?"
+              helper="For example: which application, server, or device this happened on."
               value={form.self_check_1}
               onChange={(v) => set("self_check_1", v)}
             />
             <RadioRow
               name="sc2"
-              label="Do you understand terms like 'data breach', 'controller / processor', 'GDPR Article 33'?"
+              label="Are you familiar with data-protection terms like 'personal data breach' or 'GDPR'?"
+              helper="No need to be an expert — just whether the wording feels familiar."
               value={form.self_check_2}
               onChange={(v) => set("self_check_2", v)}
             />
             <RadioRow
               name="sc3"
-              label="Have you been part of an incident response or security investigation before?"
+              label="Have you helped respond to a security incident before?"
               value={form.self_check_3}
               onChange={(v) => set("self_check_3", v)}
             />
+            
           </section>
 
           <div style={{ display: "flex", gap: 12, marginTop: 24, flexWrap: "wrap" }}>

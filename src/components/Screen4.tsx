@@ -313,8 +313,8 @@ const CoordinationBanner = () => (
         width: 28, height: 28, borderRadius: "50%", background: "#1A56DB",
         display: "inline-flex", alignItems: "center", justifyContent: "center",
         color: "#fff", fontSize: 11, fontWeight: 700, letterSpacing: "0.05em",
-      }}>AI</span>
-      <span style={{ color: "#fff", fontSize: 13 }}>AI is coordinating both tracks simultaneously</span>
+      }}>LR</span>
+      <span style={{ color: "#fff", fontSize: 13 }}>Legal Reasoning is coordinating both tracks simultaneously</span>
     </div>
     <svg width={260} height={44} style={{ flexShrink: 0 }}>
       <defs>
@@ -326,7 +326,7 @@ const CoordinationBanner = () => (
       <circle cx={26} cy={22} r={16} fill="rgba(99,175,240,0.12)" stroke="#63aff0" />
       <text x={26} y={26} fill="#63aff0" fontSize={9} textAnchor="middle">Intake</text>
       <circle cx={130} cy={22} r={16} fill="rgba(26,86,219,0.25)" stroke="#1A56DB" />
-      <text x={130} y={26} fill="#fff" fontSize={9} textAnchor="middle">AI</text>
+      <text x={130} y={26} fill="#fff" fontSize={9} textAnchor="middle">LR</text>
       <circle cx={234} cy={22} r={16} fill="rgba(82,214,138,0.12)" stroke="#52D68A" />
       <text x={234} y={20} fill="#52D68A" fontSize={8} textAnchor="middle">Tech +</text>
       <text x={234} y={30} fill="#52D68A" fontSize={8} textAnchor="middle">Legal</text>
@@ -349,7 +349,8 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 );
 
 export const Screen4 = ({
-  state, ldaGdpr, ldaNis2, ldaDora, ldaConnected, ai, aiError, auditLog, onBack, onRestart,
+  state, ldaGdpr, ldaNis2, ldaDora, ldaConnected, ai, aiError, auditLog,
+  onBack, onRestart,
 }: Props) => {
   const verdict = computeVerdict(state);
   const clocks = buildClocks(state);
@@ -362,7 +363,7 @@ export const Screen4 = ({
       <div className="aegis-section-label mb-2">Step 4 of 4</div>
       <h2 className="aegis-title mb-3">Assessment &amp; Action Plan</h2>
       <p className="aegis-helper mb-6">
-        Two parallel response tracks. Tech team can act immediately; legal track loads as the AI completes drafting.
+        Two parallel response tracks. Tech team can act immediately; legal track loads as Legal Reasoning completes drafting.
       </p>
 
       <CoordinationBanner />
@@ -426,9 +427,9 @@ export const Screen4 = ({
           {/* Immediate technical actions */}
           <SectionLabel>Immediate technical actions</SectionLabel>
           {legalLoading ? (
-            <div className="aegis-card aegis-helper">Awaiting AI checklist…</div>
+            <div className="aegis-card aegis-helper">Awaiting Legal Reasoning checklist…</div>
           ) : aiError || !ai ? (
-            <div className="aegis-card aegis-helper">No checklist available — AI assessment failed.</div>
+            <div className="aegis-card aegis-helper">No checklist available — Legal Reasoning assessment failed.</div>
           ) : (
             <TechChecklist items={(ai.recommended_actions ?? []).map(normalizeAction)} />
           )}
@@ -459,7 +460,7 @@ export const Screen4 = ({
 
         {/* RIGHT — LEGAL TRACK */}
         <div>
-          <ColumnHeader kicker="LEGAL TRACK" kickerColor="#52D68A" sub="Submitted to lawyers — AI-assisted" />
+          <ColumnHeader kicker="LEGAL TRACK" kickerColor="#52D68A" sub="Submitted to lawyers — Legal Reasoning assisted" />
 
           {legalLoading ? (
             <div className="aegis-card" style={{ textAlign: "center", padding: 48 }}>
@@ -473,19 +474,19 @@ export const Screen4 = ({
                 }}
               />
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-              <div style={{ color: "#a8bbd4", fontSize: 13 }}>AI is preparing legal track…</div>
+              <div style={{ color: "#a8bbd4", fontSize: 13 }}>Legal Reasoning is preparing legal track…</div>
             </div>
           ) : aiError || !ai ? (
             <div className="aegis-card" style={{ borderLeft: "3px solid #ff6b6b" }}>
               <div style={{ color: "#ff6b6b", fontWeight: 600, marginBottom: 6 }}>Legal track could not be generated</div>
               <div style={{ color: "#a8bbd4", fontSize: 13 }}>
-                The <code>OPENAI_API_KEY</code> backend secret may be missing, invalid, or rate-limited. Verify it in Lovable Cloud → Backend → Secrets and try again.
+                The Legal Reasoning service is temporarily unavailable. Please try again shortly.
               </div>
             </div>
           ) : (
             <>
-              {/* AI risk assessment */}
-              <SectionLabel>AI risk assessment</SectionLabel>
+              {/* Legal Reasoning risk assessment */}
+              <SectionLabel>Legal Reasoning risk assessment</SectionLabel>
               <div className="aegis-card" style={{ position: "relative" }}>
                 <span style={{
                   position: "absolute", top: 12, right: 12,
@@ -516,23 +517,9 @@ export const Screen4 = ({
               </div>
 
               {/* LDA Law layer */}
-              <SectionLabel>Law layer</SectionLabel>
-              {!ldaConnected ? (
-                <div className="aegis-card" style={{ borderLeft: "3px solid #ffc46b", background: "rgba(255,196,107,0.06)" }}>
-                  <div style={{ color: "#ffc46b", fontWeight: 600, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
-                    <span>⚠</span> Legal database (LDA) not connected
-                  </div>
-                  <div style={{ color: "#a8bbd4", fontSize: 13, lineHeight: 1.6 }}>
-                    The AI assessment above was generated <strong style={{ color: "#fff" }}>without cited legal sources</strong> from the
-                    Otto Schmidt Legal Data Hub. Statutory references shown are model-generated and should be
-                    verified by counsel before relying on them.
-                    <div style={{ marginTop: 6, color: "#7a8fa8", fontSize: 12 }}>
-                      To enable sourced guidance, add the <code>LDA</code> backend secret (format <code>client_id:client_secret</code>).
-                    </div>
-                  </div>
-                </div>
-              ) : (
+              {ldaConnected && (ldaGdpr || ldaNis2 || ldaDora) && (
                 <>
+                  <SectionLabel>Law layer</SectionLabel>
                   {ldaGdpr && <SourcedCard heading="GDPR Art.33 / 34 — sourced legal guidance" result={ldaGdpr} />}
                   {ldaNis2 && <SourcedCard heading="NIS2 Art.23 — sourced legal guidance" result={ldaNis2} />}
                   {ldaDora && <SourcedCard heading="DORA Art.19 — sourced legal guidance" result={ldaDora} />}
